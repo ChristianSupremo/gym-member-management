@@ -90,6 +90,3 @@ Before you begin, ensure you have the following software installed on your syste
 - CSS
 - PHP
 - MySQL
-
-## Contributing
-Contributions are welcome! Please fork this repository and submit a pull request with your changes. Ensure to include tests where applicable and update documentation.
