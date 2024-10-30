@@ -2,7 +2,7 @@
 include 'db.php';
 
 // Fetch all members with assigned plans
-$sql = "SELECT Member.Name, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
+$sql = "SELECT Member.Name AS MemberName, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
         FROM Membership
         JOIN Member ON Membership.MemberID = Member.MemberID
         JOIN Plan ON Membership.PlanID = Plan.PlanID";
@@ -48,7 +48,7 @@ $result = $conn->query($sql);
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . htmlspecialchars($row["Name"]) . "</td><td>" . htmlspecialchars($row["PlanName"]) . "</td><td>" 
+                echo "<tr><td>" . htmlspecialchars($row["MemberName"]) . "</td><td>" . htmlspecialchars($row["PlanName"]) . "</td><td>" 
                 . htmlspecialchars($row["StartDate"]) . "</td><td>" . htmlspecialchars($row["EndDate"]) . "</td><td>" 
                 . htmlspecialchars($row["Status"]) . "</td></tr>";
             }
@@ -65,22 +65,19 @@ $result = $conn->query($sql);
             <th>Plan Name</th>
             <th>Rate</th>
         </tr>
-        <tr>
-            <td>Per Session No Cardio</td>
-            <td>70</td>
-        </tr>
-        <tr>
-            <td>Per Session with Cardio Equipment</td>
-            <td>100</td>
-        </tr>
-        <tr>
-            <td>15 Days</td>
-            <td>500</td>
-        </tr>
-        <tr>
-            <td>30 Days</td>
-            <td>900</td>
-        </tr>
+        <?php
+        // Query to fetch available plans and their rates
+        $plan_query = "SELECT PlanName, Rate FROM Plan";
+        $plan_result = $conn->query($plan_query);
+        
+        if ($plan_result->num_rows > 0) {
+            while ($plan_row = $plan_result->fetch_assoc()) {
+                echo "<tr><td>" . htmlspecialchars($plan_row["PlanName"]) . "</td><td>" . htmlspecialchars($plan_row["Rate"]) . "</td></tr>";
+            }
+        } else {
+            echo "<tr><td colspan='2'>No available plans</td></tr>";
+        }
+        ?>
     </table>
 </body>
 </html>

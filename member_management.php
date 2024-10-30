@@ -2,14 +2,19 @@
 include 'db.php';  // Include the database connection file
 
 // Fetch all members with their assigned plans
-$sql = "SELECT Member.MemberID, Member.Name, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
+$sql = "SELECT Member.`Member ID`, Member.Name, Plan.PlanName, Plan.Rate, Membership.StartDate, Membership.EndDate, Membership.Status
         FROM Membership
-        JOIN Member ON Membership.MemberID = Member.MemberID
+        JOIN Member ON Membership.`Member ID` = Member.`Member ID`
         JOIN Plan ON Membership.PlanID = Plan.PlanID";
 $result = $conn->query($sql);
 
-// Fetch all available plans for the dropdown
-$plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
+// Check for SQL errors
+if (!$result) {
+    die("Query failed: " . $conn->error);
+}
+
+// Fetch all available plans with their rates for the dropdown
+$plans = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
 ?>
 
 <!DOCTYPE html>
@@ -19,14 +24,14 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Management</title>
     <style>
+           <style>
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
-            background-color: #f4f4f4;
+            /* background-color: #f4f4f4; */
         }
         h2 {
             text-align: center;
-            color: #333;
         }
         table {
             width: 100%;
@@ -57,6 +62,7 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
             margin: 0;
         }
     </style>
+    </style>
 </head>
 <body>
     <h2>Member Management</h2>
@@ -74,25 +80,28 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . htmlspecialchars($row["MemberID"]) . "</td>
-                          <td>" . htmlspecialchars($row["Name"]) . "</td>
-                          <td>" . htmlspecialchars($row["PlanName"]) . "</td>
-                          <td>" . htmlspecialchars($row["StartDate"]) . "</td>
-                          <td>" . htmlspecialchars($row["EndDate"]) . "</td>
-                          <td>" . htmlspecialchars($row["Status"]) . "</td>
-                          <td>
-                              <form action='update_plan.php' method='POST'>
-                                  <input type='hidden' name='member_id' value='" . htmlspecialchars($row["MemberID"]) . "'>
-                                  <select name='plan_id' required>";
-                // Populate dropdown with available plans
+                echo "<tr>
+                        <td>" . htmlspecialchars($row["Member ID"]) . "</td>
+                        <td>" . htmlspecialchars($row["Name"]) . "</td>
+                        <td>" . htmlspecialchars($row["PlanName"]) . " - ₱" . number_format($row["Rate"], 2) . "</td>
+                        <td>" . htmlspecialchars($row["StartDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["EndDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["Status"]) . "</td>
+                        <td>
+                            <form action='update_plan.php' method='POST'>
+                                <input type='hidden' name='member_id' value='" . htmlspecialchars($row["Member ID"]) . "'>
+                                <select name='plan_id' required>";
+                // Populate dropdown with available plans including rates
+                $plans->data_seek(0); // Reset the pointer to the start of $plans
                 while ($plan = $plans->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($plan['PlanID']) . "'>" . htmlspecialchars($plan['PlanName']) . "</option>";
+                    echo "<option value='" . htmlspecialchars($plan['PlanID']) . "'>" 
+                         . htmlspecialchars($plan['PlanName']) . " - ₱" . number_format($plan['Rate'], 2) . "</option>";
                 }
                 echo "</select>
-                                  <input type='submit' value='Change Plan'>
-                              </form>
-                          </td>
-                      </tr>";
+                                <input type='submit' value='Change Plan'>
+                            </form>
+                        </td>
+                    </tr>";
             }
         } else {
             echo "<tr><td colspan='7' class='no-members'>No members found</td></tr>";

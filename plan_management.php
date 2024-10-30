@@ -1,28 +1,9 @@
 <?php
-include 'db.php';  // Database connection
+include 'db.php'; // Include the database connection file
 
-// Fetch all members and plans from the database
-$members = $conn->query("SELECT MemberID, Name FROM Member");
-$plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
-
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $member_id = $_POST['member_id'];
-    $plan_id = $_POST['plan_id'];
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
-
-    $sql = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, Status) 
-            VALUES ('$member_id', '$plan_id', '$start_date', '$end_date', 'Active')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo "Plan assigned successfully!";
-    } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
-    }
-}
-
-$conn->close();
+// Fetch all plans
+$sql = "SELECT * FROM Plan"; 
+$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -30,36 +11,74 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assign Fitness Plan</title>
+    <title>Plan Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e2e2e2;
+        }
+        .no-plans {
+            text-align: center;
+            color: #888;
+        }
+        form {
+            display: inline-block;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
-    <h2>Assign Fitness Plan to Member</h2>
-    <form method="POST" action="">
-        <label for="member_id">Select Member:</label><br>
-        <select name="member_id" required>
-            <?php
-            while($row = $members->fetch_assoc()) {
-                echo "<option value='" . $row['MemberID'] . "'>" . $row['Name'] . "</option>";
+    <h2>Plan Management</h2>
+    <table>
+        <tr>
+            <th>Plan ID</th>
+            <th>Plan Name</th>
+            <th>Rate</th>
+            <th>Actions</th>
+        </tr>
+        <?php
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo "<tr><td>" . htmlspecialchars($row["PlanID"]) . "</td>
+                          <td>" . htmlspecialchars($row["PlanName"]) . "</td>
+                          <td>$" . number_format($row["Rate"], 2) . "</td>
+                          <td>
+                              <form action='edit_plan.php' method='GET'>
+                                  <input type='hidden' name='id' value='" . $row["PlanID"] . "'>
+                                  <input type='submit' value='Edit'>
+                              </form>
+                          </td>
+                      </tr>";
             }
-            ?>
-        </select><br>
-
-        <label for="plan_id">Select Plan:</label><br>
-        <select name="plan_id" required>
-            <?php
-            while($row = $plans->fetch_assoc()) {
-                echo "<option value='" . $row['PlanID'] . "'>" . $row['PlanName'] . "</option>";
-            }
-            ?>
-        </select><br>
-
-        <label for="start_date">Start Date:</label><br>
-        <input type="date" name="start_date" required><br>
-
-        <label for="end_date">End Date:</label><br>
-        <input type="date" name="end_date" required><br><br>
-
-        <input type="submit" value="Assign Plan">
-    </form>
+        } else {
+            echo "<tr><td colspan='4' class='no-plans'>No plans found.</td></tr>";
+        }
+        ?>
+    </table>
 </body>
 </html>
