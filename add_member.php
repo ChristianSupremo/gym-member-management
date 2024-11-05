@@ -23,25 +23,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$date_of_birth', '$phone', '$email', '$physical_condition', '$join_date')";
 
     if ($conn->query($sql) === TRUE) {
-        // Get the last inserted MemberID
-        $member_id = $conn->insert_id;
-
-        // Set a default plan (if you have a default plan ID)
-        $default_plan_id = 1; // Change this as per your logic
-        $start_date = date('Y-m-d'); // Use the current date
-        $end_date = date('Y-m-d', strtotime('+30 days')); // Example: 30 days from now
-        $status = 'Active'; // You may change this based on your needs
-
-        // Insert into Membership table
-        $membership_sql = "INSERT INTO Membership (`Member ID`, PlanID, StartDate, EndDate, Status)
-        VALUES ('$member_id', '$default_plan_id', '$start_date', '$end_date', '$status')";
-
-        if ($conn->query($membership_sql) === TRUE) {
-            echo "New member registered and membership created successfully!";
-        } else {
-            echo "Error inserting into Membership table: " . $conn->error;
-        }
-
+        echo "New member registered successfully!";
         // Redirect to the dashboard after 3 seconds
         echo "<script>
                 setTimeout(function() {
@@ -57,3 +39,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 } else {
     echo "No form data submitted.";
 }
+?>

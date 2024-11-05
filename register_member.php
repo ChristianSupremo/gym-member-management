@@ -42,10 +42,10 @@
             background-color: #0056b3;
         }
         .gender-group {
-            display: flex;  
-            align-items: center;  
-            gap: 20px;  
-            margin-top: 10px;  
+            display: flex;  /* Align radio buttons horizontally */
+            align-items: center;  /* Center them vertically */
+            gap: 20px;  /* Add space between radio buttons */
+            margin-top: 10px;  /* Add space above the gender section */
         }
     </style>
 </head>
