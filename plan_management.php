@@ -1,22 +1,27 @@
 <?php
-include 'db.php';  // Database connection
+include 'db.php';  // Include database connection
 
-// Fetch all members and plans from the database
+// Fetch all members
 $members = $conn->query("SELECT MemberID, Name FROM Member");
-$plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
 
-// Handle form submission
+// Fetch all payment methods
+$payment_methods = $conn->query("SELECT PaymentMethodID, MethodName FROM PaymentMethods");
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Retrieve form data
     $member_id = $_POST['member_id'];
-    $plan_id = $_POST['plan_id'];
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
+    $amount = $_POST['amount'];
+    $payment_date = $_POST['payment_date'];
+    $payment_method_id = $_POST['payment_method_id'];
+    $due_date = $_POST['due_date'];
 
-    $sql = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, Status) 
-            VALUES ('$member_id', '$plan_id', '$start_date', '$end_date', 'Active')";
+    // SQL query to insert a new payment
+    $sql = "INSERT INTO Payment (MembershipID, PaymentMethodID, Amount, PaymentDate, DueDate, Status)
+            VALUES ('$member_id', '$payment_method_id', '$amount', '$payment_date', '$due_date', 'Completed')";
 
+    // Execute the query and check if it was successful
     if ($conn->query($sql) === TRUE) {
-        echo "Plan assigned successfully!";
+        echo "Payment recorded successfully!";
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
@@ -30,11 +35,12 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assign Fitness Plan</title>
+    <title>Manage Payments</title>
 </head>
 <body>
-    <h2>Assign Fitness Plan to Member</h2>
+    <h2>Record Payment</h2>
     <form method="POST" action="">
+        <!-- Member Selection Dropdown -->
         <label for="member_id">Select Member:</label><br>
         <select name="member_id" required>
             <?php
@@ -44,22 +50,29 @@ $conn->close();
             ?>
         </select><br>
 
-        <label for="plan_id">Select Plan:</label><br>
-        <select name="plan_id" required>
+        <!-- Payment Method Selection Dropdown -->
+        <label for="payment_method_id">Select Payment Method:</label><br>
+        <select name="payment_method_id" required>
             <?php
-            while($row = $plans->fetch_assoc()) {
-                echo "<option value='" . $row['PlanID'] . "'>" . $row['PlanName'] . "</option>";
+            while ($row = $payment_methods->fetch_assoc()) {
+                echo "<option value='" . $row['PaymentMethodID'] . "'>" . $row['MethodName'] . "</option>";
             }
             ?>
         </select><br>
 
-        <label for="start_date">Start Date:</label><br>
-        <input type="date" name="start_date" required><br>
+        <!-- Payment Amount -->
+        <label for="amount">Amount:</label><br>
+        <input type="number" name="amount" required><br>
 
-        <label for="end_date">End Date:</label><br>
-        <input type="date" name="end_date" required><br><br>
+        <!-- Payment Date -->
+        <label for="payment_date">Payment Date:</label><br>
+        <input type="date" name="payment_date" required><br>
 
-        <input type="submit" value="Assign Plan">
+        <!-- Due Date -->
+        <label for="due_date">Due Date:</label><br>
+        <input type="date" name="due_date" required><br><br>
+
+        <input type="submit" value="Record Payment">
     </form>
 </body>
 </html>

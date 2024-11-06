@@ -16,7 +16,7 @@ $result = $conn->query($sql);
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
-            background-color: #f4f4f4;
+            /* background-color: #f4f4f4; */
         }
         h2 {
             text-align: center;
@@ -60,9 +60,16 @@ $result = $conn->query($sql);
         </tr>
 
         <?php
+        // Check if there are members and display them
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . htmlspecialchars($row["MemberID"]) . "</td><td>" . htmlspecialchars($row["Name"]) . "</td><td>" . htmlspecialchars($row["Address"]) . "</td><td>" . htmlspecialchars($row["EmailID"]) . "</td><td>" . htmlspecialchars($row["PhoneNo"]) . "</td></tr>";
+                echo "<tr>
+                        <td>" . htmlspecialchars($row["Member ID"]) . "</td>
+                        <td>" . htmlspecialchars($row["Name"]) . "</td>
+                        <td>" . htmlspecialchars($row["Address"]) . "</td>
+                        <td>" . htmlspecialchars($row["EmailID"]) . "</td>
+                        <td>" . htmlspecialchars($row["PhoneNo"]) . "</td>
+                      </tr>";
             }
         } else {
             echo "<tr><td colspan='5' class='no-members'>No members found</td></tr>";
@@ -73,5 +80,5 @@ $result = $conn->query($sql);
 </html>
 
 <?php
-$conn->close();
+$conn->close(); // Close the database connection
 ?>

@@ -1,8 +1,8 @@
 <?php
-include 'db.php';
+include 'db.php';  // Include the database connection file
 
 // Fetch all members with assigned plans
-$sql = "SELECT Member.Name, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
+$sql = "SELECT Member.Name AS MemberName, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
         FROM Membership
         JOIN Member ON Membership.MemberID = Member.MemberID
         JOIN Plan ON Membership.PlanID = Plan.PlanID";
@@ -20,9 +20,11 @@ $result = $conn->query($sql);
             font-family: Arial, sans-serif;
             margin: 50px;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 30px; /* Adds space between the tables */
         }
         th, td {
             padding: 10px;
@@ -30,7 +32,21 @@ $result = $conn->query($sql);
             border: 1px solid #ccc;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #2F4F4F; /* Changed for better visibility */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #C0C0C0; /* Zebra striping for readability */
+        }
+        tr:nth-child(odd) {
+            background-color: white; /* White background for odd rows */
+        }
+        tr:hover {
+            background-color: #D0E8C5; /* Highlight row on hover */
+        }
+        .no-data {
+            text-align: center;
+            color: #888;
         }
     </style>
 </head>
@@ -48,15 +64,18 @@ $result = $conn->query($sql);
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . htmlspecialchars($row["Name"]) . "</td><td>" . htmlspecialchars($row["PlanName"]) . "</td><td>" 
-                . htmlspecialchars($row["StartDate"]) . "</td><td>" . htmlspecialchars($row["EndDate"]) . "</td><td>" 
-                . htmlspecialchars($row["Status"]) . "</td></tr>";
+                echo "<tr>
+                        <td>" . htmlspecialchars($row["MemberName"]) . "</td>
+                        <td>" . htmlspecialchars($row["PlanName"]) . "</td>
+                        <td>" . htmlspecialchars($row["StartDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["EndDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["Status"]) . "</td>
+                      </tr>";
             }
         } else {
-            echo "<tr><td colspan='5'>No plans assigned</td></tr>";
+            echo "<tr><td colspan='5' class='no-data'>No plans assigned</td></tr>";
         }
         ?>
-
     </table>
 
     <h2>Available Fitness Plans</h2>
@@ -65,26 +84,26 @@ $result = $conn->query($sql);
             <th>Plan Name</th>
             <th>Rate</th>
         </tr>
-        <tr>
-            <td>Per Session No Cardio</td>
-            <td>70</td>
-        </tr>
-        <tr>
-            <td>Per Session with Cardio Equipment</td>
-            <td>100</td>
-        </tr>
-        <tr>
-            <td>15 Days</td>
-            <td>500</td>
-        </tr>
-        <tr>
-            <td>30 Days</td>
-            <td>900</td>
-        </tr>
+        <?php
+        // Query to fetch available plans and their rates
+        $plan_query = "SELECT PlanName, Rate FROM Plan";
+        $plan_result = $conn->query($plan_query);
+        
+        if ($plan_result->num_rows > 0) {
+            while ($plan_row = $plan_result->fetch_assoc()) {
+                echo "<tr>
+                        <td>" . htmlspecialchars($plan_row["PlanName"]) . "</td>
+                        <td>₱" . number_format($plan_row["Rate"], 2) . "</td>
+                      </tr>";
+            }
+        } else {
+            echo "<tr><td colspan='2' class='no-data'>No available plans</td></tr>";
+        }
+        ?>
     </table>
 </body>
 </html>
 
 <?php
-$conn->close();
+$conn->close(); // Close the database connection
 ?>

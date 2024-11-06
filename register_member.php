@@ -1,3 +1,13 @@
+<?php
+session_start(); // Start the session to use session variables
+
+// Check for success message
+if (isset($_SESSION['success_message'])) {
+    echo "<p style='color: green; text-align: center;'>" . $_SESSION['success_message'] . "</p>";
+    unset($_SESSION['success_message']); // Clear the message after displaying it
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +19,9 @@
             font-family: Arial, sans-serif;
             margin: 50px;
         }
-        h2 {
+        .regLabel {
             text-align: center;
+            margin-bottom: 20px;
         }
         form {
             max-width: 600px;
@@ -24,7 +35,7 @@
             display: block;
             margin-top: 10px;
         }
-        input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="tel"] {
+        input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="tel"], select {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -42,16 +53,16 @@
             background-color: #0056b3;
         }
         .gender-group {
-            display: flex;  /* Align radio buttons horizontally */
-            align-items: center;  /* Center them vertically */
-            gap: 20px;  /* Add space between radio buttons */
-            margin-top: 10px;  /* Add space above the gender section */
+            display: flex;  
+            align-items: center;  
+            gap: 20px;  
+            margin-top: 10px;  
         }
     </style>
 </head>
 <body>
 
-    <h2>Register New Member</h2>
+    <h2 class="regLabel">Register New Member</h2>
 
     <form action="add_member.php" method="POST">
         <label for="name">Name:</label>
@@ -92,6 +103,23 @@
 
         <label for="physical_condition">Physical Condition:</label>
         <input type="text" name="physical_condition" id="physical_condition" placeholder="Enter physical condition" required>
+
+        <!-- Fetch available plans -->
+        <label for="plan_id">Select Plan:</label>
+        <select name="plan_id" id="plan_id" required>
+            <?php
+            include 'db.php';
+            $plan_query = "SELECT PlanID, PlanName FROM Plan";
+            $plan_result = $conn->query($plan_query);
+            if ($plan_result->num_rows > 0) {
+                while ($plan_row = $plan_result->fetch_assoc()) {
+                    echo "<option value='" . htmlspecialchars($plan_row['PlanID']) . "'>" . htmlspecialchars($plan_row['PlanName']) . "</option>";
+                }
+            } else {
+                echo "<option value=''>No plans available</option>";
+            }
+            ?>
+        </select>
 
         <input type="submit" value="Register">
     </form>

@@ -2,14 +2,21 @@
 include 'db.php';  // Include the database connection file
 
 // Fetch all members with their assigned plans
-$sql = "SELECT Member.MemberID, Member.Name, Plan.PlanName, Membership.StartDate, Membership.EndDate, Membership.Status
+$sql = "SELECT Member.`MemberID`, Member.Name, Plan.PlanName, Plan.Rate, Membership.StartDate, Membership.EndDate, Membership.Status
         FROM Membership
-        JOIN Member ON Membership.MemberID = Member.MemberID
+        JOIN Member ON Membership.`MemberID` = Member.`MemberID`
         JOIN Plan ON Membership.PlanID = Plan.PlanID";
 $result = $conn->query($sql);
 
-// Fetch all available plans for the dropdown
-$plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
+// Check for SQL errors
+if (!$result) {
+    echo "<p>Error fetching members: " . htmlspecialchars($conn->error) . "</p>";
+    $conn->close();
+    exit();
+}
+
+// Fetch all available plans with their rates for the dropdown
+$plans = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
 ?>
 
 <!DOCTYPE html>
@@ -22,12 +29,8 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
-            background-color: #f4f4f4;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -39,14 +42,17 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
             border: 1px solid #ccc;
         }
         th {
-            background-color: #007bff;
+            background-color: #2F4F4F;
             color: white;
         }
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #C0C0C0; /* Zebra striping for readability */
+        }
+        tr:nth-child(odd) {
+            background-color: white; /* White background for odd rows */
         }
         tr:hover {
-            background-color: #e2e2e2;
+            background-color: #D0E8C5; /* Highlight row on hover */
         }
         .no-members {
             text-align: center;
@@ -74,29 +80,32 @@ $plans = $conn->query("SELECT PlanID, PlanName FROM Plan");
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                echo "<tr><td>" . htmlspecialchars($row["MemberID"]) . "</td>
-                          <td>" . htmlspecialchars($row["Name"]) . "</td>
-                          <td>" . htmlspecialchars($row["PlanName"]) . "</td>
-                          <td>" . htmlspecialchars($row["StartDate"]) . "</td>
-                          <td>" . htmlspecialchars($row["EndDate"]) . "</td>
-                          <td>" . htmlspecialchars($row["Status"]) . "</td>
-                          <td>
-                              <form action='update_plan.php' method='POST'>
-                                  <input type='hidden' name='member_id' value='" . htmlspecialchars($row["MemberID"]) . "'>
-                                  <select name='plan_id' required>";
-                // Populate dropdown with available plans
+                echo "<tr>
+                        <td>" . htmlspecialchars($row["MemberID"]) . "</td>
+                        <td>" . htmlspecialchars($row["Name"]) . "</td>
+                        <td>" . htmlspecialchars($row["PlanName"]) . " - ₱" . number_format($row["Rate"], 2) . "</td>
+                        <td>" . htmlspecialchars($row["StartDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["EndDate"]) . "</td>
+                        <td>" . htmlspecialchars($row["Status"]) . "</td>
+                        <td>
+                            <form action='update_plan.php' method='POST'>
+                                <input type='hidden' name='member_id' value='" . htmlspecialchars($row["MemberID"]) . "'>
+                                <select name='plan_id' required>";
+                // Populate dropdown with available plans including rates
+                $plans->data_seek(0); // Reset the pointer to the start of $plans
                 while ($plan = $plans->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($plan['PlanID']) . "'>" . htmlspecialchars($plan['PlanName']) . "</option>";
+                    echo "<option value='" . htmlspecialchars($plan['PlanID']) . "'>" 
+                         . htmlspecialchars($plan['PlanName']) . " - ₱" . number_format($plan['Rate'], 2) . "</option>";
                 }
                 echo "</select>
-                                  <input type='submit' value='Change Plan'>
-                              </form>
-                          </td>
-                      </tr>";
+                            <input type='submit' value='Change Plan'>
+                        </form>
+                    </td>
+                </tr>";
             }
         } else {
             echo "<tr><td colspan='7' class='no-members'>No members found</td></tr>";
-        }
+        }        
         ?>
     </table>
 </body>
