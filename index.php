@@ -128,22 +128,47 @@ if (isset($_SESSION['success_message'])) {
     </div>
 
     <script>
-        function loadContent(page) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("content-area").innerHTML = this.responseText;
+    function loadContent(page) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("content-area").innerHTML = this.responseText;
 
-                    // Display success message if it exists
-                    const successMessage = "<?php echo addslashes($success_message); ?>";
-                    if (successMessage) {
-                        alert(successMessage); // Show the success message as an alert
-                    }
+                // Display success message if it exists
+                const successMessage = "<?php echo addslashes($success_message); ?>";
+                if (successMessage) {
+                    alert(successMessage); // Show the success message as an alert
                 }
+
+                // Re-attach any JavaScript handlers for dynamic content here
+                attachFormSubmitHandler();
+            }
+        };
+        xhttp.open("GET", page, true);
+        xhttp.send();
+    }
+
+    // Function to handle form submission via AJAX
+    function attachFormSubmitHandler() {
+        const paymentForm = document.getElementById("payment-form");
+        if (paymentForm) {
+            paymentForm.onsubmit = function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const formData = new FormData(paymentForm);
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        alert(this.responseText); // Show success or error message from PHP
+                        loadContent('payment_management.php'); // Reload content to reflect changes
+                    }
+                };
+                xhttp.open("POST", "payment_management.php", true);
+                xhttp.send(formData);
             };
-            xhttp.open("GET", page, true);
-            xhttp.send();
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>

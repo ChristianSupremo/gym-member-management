@@ -15,6 +15,39 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Payments</title>
+    <style> 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #2F4F4F;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #C0C0C0; /* Zebra striping for readability */
+        }
+        tr:nth-child(odd) {
+            background-color: white; /* White background for odd rows */
+        }
+        tr:hover {
+            background-color: #D0E8C5; /* Highlight row on hover */
+        }
+        .no-members {
+            text-align: center;
+            color: #888;
+        }
+        form {
+            display: inline-block;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <h2>Payment History</h2>
