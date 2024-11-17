@@ -8,7 +8,7 @@ include 'db.php'; // Assuming you have a database connection here
 $success_message = "";
 if (isset($_SESSION['success_message'])) {
     $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear the message after displaying it
+    unset($_SESSION['success_message']); // Clear the message immediately after fetching it
 }
 ?>
 
@@ -19,7 +19,6 @@ if (isset($_SESSION['success_message'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Management System - Dashboard</title>
     <style>
-        /* Existing styles */
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
@@ -127,18 +126,18 @@ if (isset($_SESSION['success_message'])) {
         <p>Select an option from above to view details here.</p>
     </div>
 
+    <?php if (!empty($success_message)): ?>
+        <script>
+            alert("<?php echo addslashes($success_message); ?>");
+        </script>
+    <?php endif; ?>
+
     <script>
     function loadContent(page) {
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
                 document.getElementById("content-area").innerHTML = this.responseText;
-
-                // Display success message if it exists
-                const successMessage = "<?php echo addslashes($success_message); ?>";
-                if (successMessage) {
-                    alert(successMessage); // Show the success message as an alert
-                }
 
                 // Re-attach any JavaScript handlers for dynamic content here
                 attachFormSubmitHandler();
@@ -168,7 +167,7 @@ if (isset($_SESSION['success_message'])) {
             };
         }
     }
-</script>
+    </script>
 
 </body>
 </html>

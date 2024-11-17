@@ -1,12 +1,5 @@
 <?php
 session_start();
-if (isset($_SESSION['success_message'])) {
-    echo "<script>
-            alert('" . $_SESSION['success_message'] . "');
-          </script>";
-    unset($_SESSION['success_message']); // Clear the message after displaying
-}
-
 include 'db.php';  // Include the database connection file
 
 // Handle form submission
@@ -37,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         if ($conn->query($sql_membership) === TRUE) {
             $_SESSION['success_message'] = "Member successfully registered!";
-            header("Location: http://localhost/gym-management-system/"); // Redirect to member management page
+            header("Location: index.php"); // Redirect to the main page
             exit;
         } else {
             echo "Error: " . $conn->error;
@@ -47,6 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
