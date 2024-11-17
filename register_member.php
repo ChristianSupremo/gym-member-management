@@ -25,8 +25,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $member_id = $conn->insert_id; // Get the ID of the newly inserted member
         
         // Insert the membership
-        $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, Status)
-                           VALUES ('$member_id', '$plan_id', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Active')"; // Default 30 days
+        $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, PaymentDate, Status)
+                   VALUES ('$member_id', '$plan_id', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY), CURDATE(), 'Active')";// Default 30 days
         
         if ($conn->query($sql_membership) === TRUE) {
             $_SESSION['success_message'] = "Member successfully registered!";
