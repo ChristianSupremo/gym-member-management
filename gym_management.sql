@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 17, 2024 at 06:57 AM
+-- Generation Time: Nov 17, 2024 at 02:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -85,6 +85,7 @@ CREATE TABLE `membership` (
   `PlanID` int(11) DEFAULT NULL,
   `StaffID` int(11) DEFAULT NULL,
   `StartDate` date DEFAULT NULL,
+  `PaymentDate` date DEFAULT NULL,
   `EndDate` date DEFAULT NULL,
   `Status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -102,7 +103,7 @@ CREATE TABLE `payment` (
   `Amount` decimal(10,2) DEFAULT NULL,
   `PaymentDate` date DEFAULT NULL,
   `DueDate` date DEFAULT NULL,
-  `Status` varchar(50) DEFAULT NULL
+  `Status` enum('Pending','Completed','Failed') DEFAULT 'Pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -115,6 +116,17 @@ CREATE TABLE `paymentmethods` (
   `PaymentMethodID` int(11) NOT NULL,
   `MethodName` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `paymentmethods`
+--
+
+INSERT INTO `paymentmethods` (`PaymentMethodID`, `MethodName`) VALUES
+(1, 'Credit Card'),
+(2, 'Debit Card'),
+(3, 'Cash'),
+(4, 'Bank Transfer'),
+(5, 'Mobile Payment');
 
 -- --------------------------------------------------------
 
@@ -249,25 +261,25 @@ ALTER TABLE `audit`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
-  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `membership`
 --
 ALTER TABLE `membership`
-  MODIFY `MembershipID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `MembershipID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `payment`
 --
 ALTER TABLE `payment`
-  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `paymentmethods`
 --
 ALTER TABLE `paymentmethods`
-  MODIFY `PaymentMethodID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `PaymentMethodID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `plan`
