@@ -1,10 +1,50 @@
 <?php
-session_start(); // Start the session to use session variables
-
-// Check for success message
+session_start();
 if (isset($_SESSION['success_message'])) {
-    echo "<p style='color: green; text-align: center;'>" . $_SESSION['success_message'] . "</p>";
-    unset($_SESSION['success_message']); // Clear the message after displaying it
+    echo "<script>
+            alert('" . $_SESSION['success_message'] . "');
+          </script>";
+    unset($_SESSION['success_message']); // Clear the message after displaying
+}
+
+include 'db.php';  // Include the database connection file
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Get form data
+    $name = $_POST['name'];
+    $address = $_POST['address'];
+    $city = $_POST['city'];
+    $province = $_POST['province'];
+    $zipcode = $_POST['zipcode'];
+    $gender = $_POST['gender'];
+    $dob = $_POST['date_of_birth'];
+    $phone = $_POST['phone'];
+    $email = $_POST['email'];
+    $physical_condition = $_POST['physical_condition'];
+    $plan_id = $_POST['plan_id'];
+
+    // Insert member into the Member table
+    $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition)
+                   VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition')";
+
+    if ($conn->query($sql_member) === TRUE) {
+        $member_id = $conn->insert_id; // Get the ID of the newly inserted member
+        
+        // Insert the membership
+        $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, Status)
+                           VALUES ('$member_id', '$plan_id', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'Active')"; // Default 30 days
+        
+        if ($conn->query($sql_membership) === TRUE) {
+            $_SESSION['success_message'] = "Member successfully registered!";
+            header("Location: http://localhost/gym-management-system/"); // Redirect to member management page
+            exit;
+        } else {
+            echo "Error: " . $conn->error;
+        }
+    } else {
+        echo "Error: " . $conn->error;
+    }
 }
 ?>
 
@@ -64,7 +104,7 @@ if (isset($_SESSION['success_message'])) {
 
     <h2 class="regLabel">Register New Member</h2>
 
-    <form action="add_member.php" method="POST">
+    <form action="register_member.php" method="POST">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" placeholder="Enter member's name" required>
 

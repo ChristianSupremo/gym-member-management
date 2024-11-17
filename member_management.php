@@ -1,10 +1,12 @@
 <?php
+session_start(); // Start the session to retrieve session variables
+
 include 'db.php';  // Include the database connection file
 
 // Fetch all members with their assigned plans
-$sql = "SELECT Member.`MemberID`, Member.Name, Plan.PlanName, Plan.Rate, Membership.StartDate, Membership.EndDate, Membership.Status
+$sql = "SELECT Member.MemberID, Member.Name, Plan.PlanName, Plan.Rate, Membership.StartDate, Membership.EndDate, Membership.Status
         FROM Membership
-        JOIN Member ON Membership.`MemberID` = Member.`MemberID`
+        JOIN Member ON Membership.MemberID = Member.MemberID
         JOIN Plan ON Membership.PlanID = Plan.PlanID";
 $result = $conn->query($sql);
 
@@ -18,6 +20,7 @@ if (!$result) {
 // Fetch all available plans with their rates for the dropdown
 $plans = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -58,6 +61,16 @@ $plans = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
             text-align: center;
             color: #888;
         }
+        .alert {
+            padding: 10px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .alert.error {
+            background-color: #f44336; /* Red */
+        }
         form {
             display: inline-block;
             margin: 0;
@@ -65,7 +78,9 @@ $plans = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
     </style>
 </head>
 <body>
-    <h2>Member Management</h2>
+
+<h2>Member Management</h2>
+
     <table>
         <tr>
             <th>ID</th>
