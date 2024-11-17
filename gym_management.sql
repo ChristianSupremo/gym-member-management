@@ -1,88 +1,65 @@
--- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1    Database: gym_management
--- ------------------------------------------------------
--- Server version	5.5.5-10.4.32-MariaDB
+-- Host: 127.0.0.1
+-- Generation Time: Nov 17, 2024 at 06:57 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `gym_management`
+--
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `agreement`
 --
 
-DROP TABLE IF EXISTS `agreement`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `agreement` (
-  `AgreementID` int(11) NOT NULL AUTO_INCREMENT,
+  `AgreementID` int(11) NOT NULL,
   `MemberID` int(11) DEFAULT NULL,
   `MembershipID` int(11) DEFAULT NULL,
   `AgreementDate` date DEFAULT NULL,
   `Terms` varchar(255) DEFAULT NULL,
-  `PhysicalConditionDetails` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`AgreementID`),
-  KEY `MemberID` (`MemberID`),
-  KEY `MembershipID` (`MembershipID`),
-  CONSTRAINT `agreement_ibfk_1` FOREIGN KEY (`MemberID`) REFERENCES `member` (`MemberID`),
-  CONSTRAINT `agreement_ibfk_2` FOREIGN KEY (`MembershipID`) REFERENCES `membership` (`MembershipID`)
+  `PhysicalConditionDetails` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `agreement`
---
-
-LOCK TABLES `agreement` WRITE;
-/*!40000 ALTER TABLE `agreement` DISABLE KEYS */;
-/*!40000 ALTER TABLE `agreement` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `audit`
 --
 
-DROP TABLE IF EXISTS `audit`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `audit` (
-  `AuditID` int(11) NOT NULL AUTO_INCREMENT,
+  `AuditID` int(11) NOT NULL,
   `TableName` varchar(100) DEFAULT NULL,
   `RecordID` int(11) DEFAULT NULL,
   `ChangeType` varchar(50) DEFAULT NULL,
   `ChangeDate` datetime DEFAULT NULL,
   `ChangedBy` varchar(100) DEFAULT NULL,
-  `ChangeDetails` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`AuditID`)
+  `ChangeDetails` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `audit`
---
-
-LOCK TABLES `audit` WRITE;
-/*!40000 ALTER TABLE `audit` DISABLE KEYS */;
-/*!40000 ALTER TABLE `audit` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `member`
 --
 
-DROP TABLE IF EXISTS `member`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `member` (
-  `MemberID` int(11) NOT NULL AUTO_INCREMENT,
+  `MemberID` int(11) NOT NULL,
   `Name` varchar(100) DEFAULT NULL,
   `Address` varchar(255) DEFAULT NULL,
   `City` varchar(100) DEFAULT NULL,
@@ -93,190 +70,250 @@ CREATE TABLE `member` (
   `PhoneNo` varchar(15) DEFAULT NULL,
   `EmailID` varchar(100) DEFAULT NULL,
   `JoinDate` date DEFAULT NULL,
-  `PhysicalCondition` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`MemberID`)
+  `PhysicalCondition` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `member`
---
-
-LOCK TABLES `member` WRITE;
-/*!40000 ALTER TABLE `member` DISABLE KEYS */;
-/*!40000 ALTER TABLE `member` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `membership`
 --
 
-DROP TABLE IF EXISTS `membership`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `membership` (
-  `MembershipID` int(11) NOT NULL AUTO_INCREMENT,
+  `MembershipID` int(11) NOT NULL,
   `MemberID` int(11) DEFAULT NULL,
   `PlanID` int(11) DEFAULT NULL,
   `StaffID` int(11) DEFAULT NULL,
   `StartDate` date DEFAULT NULL,
   `EndDate` date DEFAULT NULL,
-  `Status` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`MembershipID`),
-  KEY `MemberID` (`MemberID`),
-  KEY `PlanID` (`PlanID`),
-  KEY `StaffID` (`StaffID`),
-  CONSTRAINT `membership_ibfk_1` FOREIGN KEY (`MemberID`) REFERENCES `member` (`MemberID`),
-  CONSTRAINT `membership_ibfk_2` FOREIGN KEY (`PlanID`) REFERENCES `plan` (`PlanID`),
-  CONSTRAINT `membership_ibfk_3` FOREIGN KEY (`StaffID`) REFERENCES `staff` (`StaffID`)
+  `Status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `membership`
---
-
-LOCK TABLES `membership` WRITE;
-/*!40000 ALTER TABLE `membership` DISABLE KEYS */;
-/*!40000 ALTER TABLE `membership` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `payment`
 --
 
-DROP TABLE IF EXISTS `payment`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payment` (
-  `PaymentID` int(11) NOT NULL AUTO_INCREMENT,
+  `PaymentID` int(11) NOT NULL,
   `MembershipID` int(11) DEFAULT NULL,
   `PaymentMethodID` int(11) DEFAULT NULL,
   `Amount` decimal(10,2) DEFAULT NULL,
   `PaymentDate` date DEFAULT NULL,
   `DueDate` date DEFAULT NULL,
-  `Status` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`PaymentID`),
-  KEY `MembershipID` (`MembershipID`),
-  KEY `PaymentMethodID` (`PaymentMethodID`),
-  CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`MembershipID`) REFERENCES `membership` (`MembershipID`),
-  CONSTRAINT `payment_ibfk_2` FOREIGN KEY (`PaymentMethodID`) REFERENCES `paymentmethods` (`PaymentMethodID`)
+  `Status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `payment`
---
-
-LOCK TABLES `payment` WRITE;
-/*!40000 ALTER TABLE `payment` DISABLE KEYS */;
-/*!40000 ALTER TABLE `payment` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `paymentmethods`
 --
 
-DROP TABLE IF EXISTS `paymentmethods`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `paymentmethods` (
-  `PaymentMethodID` int(11) NOT NULL AUTO_INCREMENT,
-  `MethodName` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`PaymentMethodID`)
+  `PaymentMethodID` int(11) NOT NULL,
+  `MethodName` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `paymentmethods`
---
-
-LOCK TABLES `paymentmethods` WRITE;
-/*!40000 ALTER TABLE `paymentmethods` DISABLE KEYS */;
-/*!40000 ALTER TABLE `paymentmethods` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `plan`
 --
 
-DROP TABLE IF EXISTS `plan`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `plan` (
-  `PlanID` int(11) NOT NULL AUTO_INCREMENT,
+  `PlanID` int(11) NOT NULL,
   `PlanName` varchar(100) DEFAULT NULL,
   `Duration` int(11) DEFAULT NULL,
-  `Rate` decimal(10,2) DEFAULT NULL,
-  PRIMARY KEY (`PlanID`)
+  `Rate` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `plan`
 --
 
-LOCK TABLES `plan` WRITE;
-/*!40000 ALTER TABLE `plan` DISABLE KEYS */;
-/*!40000 ALTER TABLE `plan` ENABLE KEYS */;
-UNLOCK TABLES;
+INSERT INTO `plan` (`PlanID`, `PlanName`, `Duration`, `Rate`) VALUES
+(1, 'PRT 15Days', 15, 350.00),
+(2, 'PRT 30Days', 30, 600.00),
+(3, 'Cardio 15Days', 15, 500.00),
+(4, 'Cardio 30Days', 30, 900.00);
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `roles`
 --
 
-DROP TABLE IF EXISTS `roles`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles` (
-  `RoleID` int(11) NOT NULL AUTO_INCREMENT,
-  `RoleName` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`RoleID`)
+  `RoleID` int(11) NOT NULL,
+  `RoleName` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `roles`
---
-
-LOCK TABLES `roles` WRITE;
-/*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-/*!40000 ALTER TABLE `roles` ENABLE KEYS */;
-UNLOCK TABLES;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `staff`
 --
 
-DROP TABLE IF EXISTS `staff`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `staff` (
-  `StaffID` int(11) NOT NULL AUTO_INCREMENT,
+  `StaffID` int(11) NOT NULL,
   `Name` varchar(100) DEFAULT NULL,
   `RoleID` int(11) DEFAULT NULL,
   `ContactNo` varchar(15) DEFAULT NULL,
-  `StaffEmailID` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`StaffID`)
+  `StaffEmailID` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `staff`
+-- Indexes for dumped tables
 --
 
-LOCK TABLES `staff` WRITE;
-/*!40000 ALTER TABLE `staff` DISABLE KEYS */;
-/*!40000 ALTER TABLE `staff` ENABLE KEYS */;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+--
+-- Indexes for table `agreement`
+--
+ALTER TABLE `agreement`
+  ADD PRIMARY KEY (`AgreementID`),
+  ADD KEY `MemberID` (`MemberID`),
+  ADD KEY `MembershipID` (`MembershipID`);
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+--
+-- Indexes for table `audit`
+--
+ALTER TABLE `audit`
+  ADD PRIMARY KEY (`AuditID`);
+
+--
+-- Indexes for table `member`
+--
+ALTER TABLE `member`
+  ADD PRIMARY KEY (`MemberID`);
+
+--
+-- Indexes for table `membership`
+--
+ALTER TABLE `membership`
+  ADD PRIMARY KEY (`MembershipID`),
+  ADD KEY `MemberID` (`MemberID`),
+  ADD KEY `PlanID` (`PlanID`),
+  ADD KEY `StaffID` (`StaffID`);
+
+--
+-- Indexes for table `payment`
+--
+ALTER TABLE `payment`
+  ADD PRIMARY KEY (`PaymentID`),
+  ADD KEY `MembershipID` (`MembershipID`),
+  ADD KEY `PaymentMethodID` (`PaymentMethodID`);
+
+--
+-- Indexes for table `paymentmethods`
+--
+ALTER TABLE `paymentmethods`
+  ADD PRIMARY KEY (`PaymentMethodID`);
+
+--
+-- Indexes for table `plan`
+--
+ALTER TABLE `plan`
+  ADD PRIMARY KEY (`PlanID`);
+
+--
+-- Indexes for table `roles`
+--
+ALTER TABLE `roles`
+  ADD PRIMARY KEY (`RoleID`);
+
+--
+-- Indexes for table `staff`
+--
+ALTER TABLE `staff`
+  ADD PRIMARY KEY (`StaffID`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `agreement`
+--
+ALTER TABLE `agreement`
+  MODIFY `AgreementID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `audit`
+--
+ALTER TABLE `audit`
+  MODIFY `AuditID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `member`
+--
+ALTER TABLE `member`
+  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `membership`
+--
+ALTER TABLE `membership`
+  MODIFY `MembershipID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `payment`
+--
+ALTER TABLE `payment`
+  MODIFY `PaymentID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `paymentmethods`
+--
+ALTER TABLE `paymentmethods`
+  MODIFY `PaymentMethodID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `plan`
+--
+ALTER TABLE `plan`
+  MODIFY `PlanID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `roles`
+--
+ALTER TABLE `roles`
+  MODIFY `RoleID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `staff`
+--
+ALTER TABLE `staff`
+  MODIFY `StaffID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `agreement`
+--
+ALTER TABLE `agreement`
+  ADD CONSTRAINT `agreement_ibfk_1` FOREIGN KEY (`MemberID`) REFERENCES `member` (`MemberID`),
+  ADD CONSTRAINT `agreement_ibfk_2` FOREIGN KEY (`MembershipID`) REFERENCES `membership` (`MembershipID`);
+
+--
+-- Constraints for table `membership`
+--
+ALTER TABLE `membership`
+  ADD CONSTRAINT `membership_ibfk_1` FOREIGN KEY (`MemberID`) REFERENCES `member` (`MemberID`),
+  ADD CONSTRAINT `membership_ibfk_2` FOREIGN KEY (`PlanID`) REFERENCES `plan` (`PlanID`),
+  ADD CONSTRAINT `membership_ibfk_3` FOREIGN KEY (`StaffID`) REFERENCES `staff` (`StaffID`);
+
+--
+-- Constraints for table `payment`
+--
+ALTER TABLE `payment`
+  ADD CONSTRAINT `payment_ibfk_1` FOREIGN KEY (`MembershipID`) REFERENCES `membership` (`MembershipID`),
+  ADD CONSTRAINT `payment_ibfk_2` FOREIGN KEY (`PaymentMethodID`) REFERENCES `paymentmethods` (`PaymentMethodID`);
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2024-11-05 15:39:14
