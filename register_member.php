@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 include 'db.php';  // Include the database connection file
 
@@ -141,18 +145,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <!-- Fetch available plans -->
         <label for="plan_id">Select Plan:</label>
         <select name="plan_id" id="plan_id" required>
-            <?php
-            include 'db.php';
-            $plan_query = "SELECT PlanID, PlanName FROM Plan";
-            $plan_result = $conn->query($plan_query);
+        <?php
+        $plan_query = "SELECT PlanID, PlanName FROM Plan";
+        $plan_result = $conn->query($plan_query);
+
+        // Debugging: check if query was successful
+        if (!$plan_result) {
+            echo "Error in fetching plans: " . $conn->error;  // Show any error in the query
+        } else {
             if ($plan_result->num_rows > 0) {
+                // Debugging line to show number of plans found
+                echo "Plans found: " . $plan_result->num_rows; 
                 while ($plan_row = $plan_result->fetch_assoc()) {
                     echo "<option value='" . htmlspecialchars($plan_row['PlanID']) . "'>" . htmlspecialchars($plan_row['PlanName']) . "</option>";
                 }
             } else {
                 echo "<option value=''>No plans available</option>";
             }
-            ?>
+        }
+        ?>
         </select>
 
         <input type="submit" value="Register">
