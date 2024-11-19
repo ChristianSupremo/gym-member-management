@@ -60,8 +60,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-// Fetch all members
-$members = $conn->query("SELECT MembershipID, MemberID FROM Membership");
+// Fetch all members with their plans and prices
+$members = $conn->query("SELECT m.MembershipID, mem.MemberID, mem.Name AS MemberName, p.PlanName, p.Rate AS PlanPrice
+                         FROM Membership m
+                         INNER JOIN Member mem ON m.MemberID = mem.MemberID
+                         INNER JOIN Plan p ON m.PlanID = p.PlanID");
+
 $payment_methods = $conn->query("SELECT PaymentMethodID, MethodName FROM PaymentMethods");
 if ($payment_methods->num_rows == 0) {
     echo "<div class='alert error'>No payment methods available. Please add payment methods to the database.</div>";
@@ -164,18 +168,27 @@ if ($payment_methods->num_rows == 0) {
             background-color: #f44336; /* Red */
         }
     </style>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Correct Select2 CSS -->
+     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Correct Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </head>
 <body>
     <h2>Record Payment</h2>
+    
     <form id="payment-form" method="post">
-        <label for="member_id">Select Membership:</label>
-        <select name="member_id" required>
-            <?php while ($member = $members->fetch_assoc()) { ?>
-                <option value="<?= $member['MembershipID'] ?>">
-                    Membership #<?= $member['MembershipID'] ?> - Member #<?= $member['MemberID'] ?>
-                </option>
-            <?php } ?>
-        </select>
+    <label for="member-select">Select Member:</label>
+    <select name="member_id" id="member-select" class="searchable-dropdown" required>
+    <?php while ($member = $members->fetch_assoc()) { ?>
+        <option value="<?= $member['MembershipID'] ?>">
+            <?= $member['MemberID'] ?> - <?= $member['MemberName'] ?> - <?= $member['PlanName'] ?> - ₱<?= number_format($member['PlanPrice'], 2) ?>
+        </option>
+    <?php } ?>
+</select>
+
 
         <label for="payment_method_id">Payment Method:</label>
         <select name="payment_method_id" required>
@@ -185,10 +198,12 @@ if ($payment_methods->num_rows == 0) {
         </select>
 
         <label for="amount">Amount:</label>
-        <input type="number" name="amount" step="0.01" min="0" required />
+        <input type="number" name="amount" id="amount" step="0.01" min="0" required />
+
 
         <label for="payment_date">Payment Date:</label>
-        <input type="date" name="payment_date" required />
+        <input type="date" name="payment_date" id="payment_date" required />
+
 
         <button type="submit">Record Payment</button>
     </form>
@@ -225,5 +240,17 @@ if ($payment_methods->num_rows == 0) {
             <?php } ?>
         </tbody>
     </table>
+
+    <script>
+        $(document).ready(function() {
+    $('#member-select').select2({
+        placeholder: "Search or select a member",
+        allowClear: true,
+        width: '100%'
+    });
+});
+    </script>
+
+    
 </body>
 </html>
