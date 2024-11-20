@@ -152,12 +152,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" placeholder="Enter email" required>
 
-        <!-- Add new fields here -->
         <label for="Height">Height(cm):</label>
-        <input type="text" name="Height" id="height" placeholder="Enter height in centimeter" required>
+        <input type="text" name="height" id="height" placeholder="Enter height in centimeter" required>
 
         <label for="Weight">Weight(kg):</label>
-        <input type="text" name="Weight" id="weight" placeholder="Enter weight in kilograms" required>
+        <input type="text" name="weight" id="weight" placeholder="Enter weight in kilograms" required>
 
         <label for="physical_condition">Physical Conditions:</label>
         <!-- Common physical conditions -->

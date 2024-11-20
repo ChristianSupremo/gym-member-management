@@ -16,6 +16,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $conn->real_escape_string($_POST['email']);
     $physical_condition = $conn->real_escape_string($_POST['physical_condition']);
     $plan_id = $conn->real_escape_string($_POST['plan_id']);
+    $height = $conn->real_escape_string($_POST['height']);
+    $weight = $conn->real_escape_string($_POST['weight']);
 
     // Insert into the database (you might have to adjust this query)
     $sql = "INSERT INTO member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition)

@@ -107,9 +107,14 @@ if (isset($_SESSION['success_message'])) {
                 <p class="ccard">View and Edit members and their Plans</p>
             </div>
             <div class="card" onclick="loadContent('payment_management.php')">
-                <h3>Track Payments</h3>
+                <h3>Payments</h3>
                 <p class="ccard">Record Payments</p>
             </div>
+            <div class="card" onclick="loadContent('view_members.php')">
+            <h3>View Users</h3>
+            <p class="ccard">View Active and Inactive Members</p>
+            </div>
+
             <div class="card" onclick="loadContent('view_plans.php')">
                 <h3>View Plans</h3>
                 <p class="ccard">View Assigned Plans</p>
@@ -167,6 +172,39 @@ if (isset($_SESSION['success_message'])) {
             };
         }
     }
+
+    function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toLowerCase();
+    const table = document.getElementById("membersTable");
+    const rows = table.getElementsByTagName("tr");
+
+    // Loop through all rows in the table (skip the header row)
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const cells = row.getElementsByTagName("td");
+
+        let match = false;
+
+        // Check if any cell in the row contains the search query
+        for (let j = 0; j < cells.length; j++) {
+            const cell = cells[j];
+            if (cell) {
+                if (cell.textContent.toLowerCase().indexOf(filter) > -1) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        // Show or hide the row based on the search result
+        if (match) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    }
+}
     </script>
 
 </body>

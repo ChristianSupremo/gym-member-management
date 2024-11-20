@@ -66,11 +66,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 
-// Fetch all members with their plans and prices
+// Fetch only inactive members with their plans and prices
 $members = $conn->query("SELECT m.MembershipID, mem.MemberID, mem.Name AS MemberName, p.PlanName, p.Rate AS PlanPrice
                          FROM Membership m
                          INNER JOIN Member mem ON m.MemberID = mem.MemberID
-                         INNER JOIN Plan p ON m.PlanID = p.PlanID");
+                         INNER JOIN Plan p ON m.PlanID = p.PlanID
+                         WHERE m.Status = 'inactive'");  // Only inactive members
 
 $payment_methods = $conn->query("SELECT PaymentMethodID, MethodName FROM PaymentMethods");
 if ($payment_methods->num_rows == 0) {
@@ -86,6 +87,7 @@ if ($payment_methods->num_rows == 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Payments</title>
     <style>
+        /* Existing styles */
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
@@ -213,39 +215,6 @@ if ($payment_methods->num_rows == 0) {
 
         <button type="submit">Record Payment</button>
     </form>
-
-    <h2>Payment History</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Membership ID</th>
-                <th>Start Date</th>
-                <th>Amount</th>
-                <th>Payment Method</th>
-                <th>Payment Date</th>
-                <th>Due Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            $payments = $conn->query("SELECT p.MembershipID, p.Amount, pm.MethodName, p.PaymentDate, p.DueDate, p.Status, m.StartDate
-                                      FROM Payment p
-                                      JOIN PaymentMethods pm ON p.PaymentMethodID = pm.PaymentMethodID
-                                      JOIN Membership m ON p.MembershipID = m.MembershipID");
-            while ($payment = $payments->fetch_assoc()) { ?>
-                <tr>
-                    <td><?= $payment['MembershipID'] ?></td>
-                    <td><?= $payment['StartDate'] ?></td>
-                    <td><?= $payment['Amount'] ?></td>
-                    <td><?= $payment['MethodName'] ?></td>
-                    <td><?= $payment['PaymentDate'] ?></td>
-                    <td><?= $payment['DueDate'] ?></td>
-                    <td><?= $payment['Status'] ?></td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
 
     <script>
         $(document).ready(function() {
