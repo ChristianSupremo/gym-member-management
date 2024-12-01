@@ -18,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dob = $_POST['date_of_birth'];
     $phone = $_POST['phone'];
     $email = $_POST['email'];
-    $plan_id = $_POST['plan_id'];
     $height = $_POST['height'];
     $weight = $_POST['weight'];
 
@@ -33,17 +32,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $physical_condition = implode(", ", $physical_conditions);
 
     // Insert member into the Member table
-
     $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition, Height, Weight)
                    VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition', '$height', '$weight')";
 
     if ($conn->query($sql_member) === TRUE) {
         $member_id = $conn->insert_id; // Get the ID of the newly inserted member
         
-        // Insert the membership
+        // Insert a new row into Membership without PlanID
         $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, PaymentDate, Status)
-                           VALUES ('$member_id', '$plan_id', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY), CURDATE(), 'Inactive')"; // Default 30 days
-        
+                   VALUES ('$member_id', NULL, NULL, NULL, NULL, 'Inactive')";
+
         if ($conn->query($sql_membership) === TRUE) {
             $_SESSION['success_message'] = "Member successfully registered!";
             header("Location: index.php"); // Redirect to the main page
@@ -55,9 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Error: " . $conn->error;
     }
 }
-
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -159,7 +155,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="weight" id="weight" placeholder="Enter weight in kilograms" required>
 
         <label for="physical_condition">Physical Conditions:</label>
-        <!-- Common physical conditions -->
         <input type="checkbox" name="physical_condition[]" value="Hypertension"> Hypertension<br>
         <input type="checkbox" name="physical_condition[]" value="Diabetes"> Diabetes<br>
         <input type="checkbox" name="physical_condition[]" value="Asthma"> Asthma<br>
@@ -168,30 +163,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="checkbox" name="physical_condition[]" value="Arthritis"> Arthritis<br>
         <label for="other_condition">Others:</label>
         <input type="text" name="other_condition" id="other_condition" placeholder="Specify if any"><br>
-
-        <!-- Fetch available plans -->
-        <label for="plan_id">Select Plan:</label>
-        <select name="plan_id" id="plan_id" required>
-        <?php
-        $plan_query = "SELECT PlanID, PlanName FROM Plan";
-        $plan_result = $conn->query($plan_query);
-
-        // Debugging: check if query was successful
-        if (!$plan_result) {
-            echo "Error in fetching plans: " . $conn->error;  // Show any error in the query
-        } else {
-            if ($plan_result->num_rows > 0) {
-                // Debugging line to show number of plans found
-                echo "Plans found: " . $plan_result->num_rows; 
-                while ($plan_row = $plan_result->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($plan_row['PlanID']) . "'>" . htmlspecialchars($plan_row['PlanName']) . "</option>";
-                }
-            } else {
-                echo "<option value=''>No plans available</option>";
-            }
-        }
-        ?>
-        </select>
 
         <input type="submit" value="Register">
     </form>

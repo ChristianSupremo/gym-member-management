@@ -1,11 +1,15 @@
 <?php
 include 'db.php'; // Database connection
 
-// Fetch all members along with their current plan details
-$sql = "SELECT Member.MemberID, Member.Name, Member.Height, Member.Weight, Membership.Status, Plan.PlanName
+// Fetch all members with their physical condition
+$sql = "SELECT 
+            Member.MemberID, 
+            Member.Name, 
+            Member.Height, 
+            Member.Weight, 
+            Member.PhysicalCondition
         FROM Membership
-        JOIN Member ON Membership.MemberID = Member.MemberID
-        JOIN Plan ON Membership.PlanID = Plan.PlanID";  // Assuming Membership table has PlanID that links to Plan table
+        JOIN Member ON Membership.MemberID = Member.MemberID"; // No need for Plan table
 $result = $conn->query($sql);
 
 // Check for errors
@@ -23,16 +27,15 @@ if (!$result) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Members</title>
     <style>
-        /* Existing styles */
         body {
             font-family: Arial, sans-serif;
             margin: 50px;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 30px; /* Adds space between the tables */
+            margin-bottom: 30px;
         }
         th, td {
             padding: 10px;
@@ -40,17 +43,17 @@ if (!$result) {
             border: 1px solid #ccc;
         }
         th {
-            background-color: #2F4F4F; /* Changed for better visibility */
+            background-color: #2F4F4F;
             color: white;
         }
         tr:nth-child(even) {
-            background-color: #C0C0C0; /* Zebra striping for readability */
+            background-color: #C0C0C0;
         }
         tr:nth-child(odd) {
-            background-color: white; /* White background for odd rows */
+            background-color: white;
         }
         tr:hover {
-            background-color: #D0E8C5; /* Highlight row on hover */
+            background-color: #D0E8C5;
         }
         .search-bar {
             margin-bottom: 20px;
@@ -68,7 +71,7 @@ if (!$result) {
 
 <!-- Search Bar -->
 <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search by Name or Status..." onkeyup="filterTable()">
+    <input type="text" id="searchInput" placeholder="Search by Name..." onkeyup="filterTable()">
 </div>
 
 <!-- Members Table -->
@@ -79,8 +82,7 @@ if (!$result) {
             <th>Name</th>
             <th>Height (cm)</th>
             <th>Weight (kg)</th>
-            <th>Plan</th>
-            <th>Status</th>
+            <th>Physical Condition</th>
         </tr>
     </thead>
     <tbody>
@@ -89,54 +91,29 @@ if (!$result) {
                 <tr>
                     <td><?php echo htmlspecialchars($row['MemberID']); ?></td>
                     <td><?php echo htmlspecialchars($row['Name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['Height']); ?></td>
-                    <td><?php echo htmlspecialchars($row['Weight']); ?></td>
-                    <td><?php echo htmlspecialchars($row['PlanName']); ?></td>
-                    <td><?php echo htmlspecialchars($row['Status']); ?></td>
+                    <td><?php echo $row['Height'] !== null ? htmlspecialchars($row['Height']) : "Not Provided"; ?></td>
+                    <td><?php echo $row['Weight'] !== null ? htmlspecialchars($row['Weight']) : "Not Provided"; ?></td>
+                    <td><?php echo !empty($row['PhysicalCondition']) ? htmlspecialchars($row['PhysicalCondition']) : "None"; ?></td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
             <tr>
-                <td colspan="6">No members found.</td>  <!-- Adjusted colspan to account for the new column -->
+                <td colspan="5">No members found.</td>
             </tr>
         <?php endif; ?>
     </tbody>
 </table>
 
-<!-- JavaScript -->
 <script>
-// Declare filterTable function globally
+// Filter table by name
 function filterTable() {
-    const input = document.getElementById("searchInput");
-    const filter = input.value.toLowerCase();
-    const table = document.getElementById("membersTable");
-    const rows = table.getElementsByTagName("tr");
+    const input = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#membersTable tbody tr');
 
-    // Loop through all rows in the table (skip the header row)
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.getElementsByTagName("td");
-
-        let match = false;
-
-        // Check if any cell in the row contains the search query
-        for (let j = 0; j < cells.length; j++) {
-            const cell = cells[j];
-            if (cell) {
-                if (cell.textContent.toLowerCase().indexOf(filter) > -1) {
-                    match = true;
-                    break;
-                }
-            }
-        }
-
-        // Show or hide the row based on the search result
-        if (match) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
-        }
-    }
+    rows.forEach(row => {
+        const name = row.cells[1].textContent.toLowerCase();
+        row.style.display = name.includes(input) ? '' : 'none';
+    });
 }
 </script>
 
