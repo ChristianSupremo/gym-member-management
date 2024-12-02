@@ -99,6 +99,17 @@ if (!$result) {
     <input type="text" id="searchInput" placeholder="Search by Name or Date..." onkeyup="ftb()">
 </div>
 
+<!-- Date Range Checkboxes -->
+<label>
+    <input type="checkbox" id="thisMonthCheckbox" onchange="filterPayments()"> Payments This Month
+</label>
+<label>
+    <input type="checkbox" id="sixMonthsCheckbox" onchange="filterPayments()"> Payments Within Six Months
+</label>
+<label>
+    <input type="checkbox" id="thisYearCheckbox" onchange="filterPayments()"> Payments This Year
+</label>
+
 <!-- Payments Table -->
 <table id="paymentsTable">
     <thead>
@@ -133,34 +144,6 @@ if (!$result) {
         ?>
     </tbody>
 </table>
-
-<!-- JavaScript -->
-<script>
-function ftb() {
-    const input = document.getElementById("searchInput");
-    const ftr = input.value.toLowerCase();
-    const table = document.getElementById("paymentsTable");
-    const rows = table.getElementsByTagName("tr");
-
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.getElementsByTagName("td");
-
-        let match = false;
-        const nameCell = cells[1]; // Name column
-        const dateCell = cells[2]; // Payment Date column
-
-        if (
-            (nameCell && nameCell.textContent.toLowerCase().includes(ftr)) ||
-            (dateCell && dateCell.textContent.toLowerCase().includes(ftr))
-        ) {
-            match = true;
-        }
-
-        row.style.display = match ? "" : "none";
-    }
-}
-</script>
 
 </body>
 </html>

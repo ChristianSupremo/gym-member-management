@@ -199,7 +199,14 @@ if (!$result || !$plans_result) {
 <label for="searchInput">Search Members:</label>
 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by Name...">
 
-<!-- Members Table -->
+<!-- Filter Checkboxes -->
+<label>
+    <input type="checkbox" id="activeCheckbox" onchange="filterByStatus()"> Show Active Members
+</label>
+<label>
+    <input type="checkbox" id="inactiveCheckbox" onchange="filterByStatus()"> Show Inactive Members
+</label>
+
 <!-- Members Table -->
 <table id="membersTable">
     <thead>

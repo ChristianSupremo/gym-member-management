@@ -257,18 +257,90 @@ function attachSearchFilter() {
             }
         }
     }
-// Open the payment modal and populate hidden fields with MemberID and PlanID
-function openPaymentModal(memberId, memberName, planId) {
-    document.getElementById('paymentModal').style.display = 'block';
-    document.getElementById('modalMemberID').value = memberId;
-    document.getElementById('modalPlanID').value = planId;
-    document.getElementById('memberName').innerText = memberName; // Set the member's name in the modal
+    function filterByStatus() {
+    const activeCheckbox = document.getElementById("activeCheckbox");
+    const inactiveCheckbox = document.getElementById("inactiveCheckbox");
+    const table = document.getElementById("membersTable");
+    const rows = table.getElementsByTagName("tr");
+
+    // Enforce mutual exclusivity
+    if (activeCheckbox.checked && inactiveCheckbox.checked) {
+        inactiveCheckbox.checked = false; // Auto-uncheck the other
+    }
+
+    for (let i = 1; i < rows.length; i++) {
+        const statusCell = rows[i].querySelector("td:nth-child(7)"); // Update selector for 'Status' column
+        if (statusCell) {
+            const status = statusCell.textContent.trim().toLowerCase();
+            if (
+                (activeCheckbox.checked && status === "active") ||
+                (inactiveCheckbox.checked && status === "inactive") ||
+                (!activeCheckbox.checked && !inactiveCheckbox.checked) // Show all if none checked
+            ) {
+                rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function filterPayments() {
+    const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
+    const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
+    const thisYearCheckbox = document.getElementById("thisYearCheckbox");
+    const table = document.getElementById("paymentsTable");
+    const rows = table.getElementsByTagName("tr");
+
+    // Enforce mutual exclusivity
+    if (thisMonthCheckbox.checked && (sixMonthsCheckbox.checked || thisYearCheckbox.checked)) {
+        sixMonthsCheckbox.checked = false;
+        thisYearCheckbox.checked = false;
+    } else if (sixMonthsCheckbox.checked && thisYearCheckbox.checked) {
+        thisYearCheckbox.checked = false;
+    }
+
+    const today = new Date();
+    for (let i = 1; i < rows.length; i++) {
+        const dateCell = rows[i].querySelector("td:nth-child(3)");
+        if (dateCell) {
+            const paymentDate = new Date(dateCell.textContent.trim());
+            const yearDifference = today.getFullYear() - paymentDate.getFullYear();
+            const monthDifference =
+                today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
+
+            let showRow = false;
+
+            if (
+                thisMonthCheckbox.checked &&
+                today.getFullYear() === paymentDate.getFullYear() &&
+                today.getMonth() === paymentDate.getMonth()
+            ) {
+                showRow = true;
+            } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
+                showRow = true;
+            } else if (thisYearCheckbox.checked && yearDifference === 0) {
+                showRow = true;
+            }
+
+            rows[i].style.display = showRow ? "" : "none";
+        }
+    }
 }
 
-// Close the modal
-function closePaymentModal() {
-    document.getElementById('paymentModal').style.display = 'none';
-}
+
+    // Open the payment modal and populate hidden fields with MemberID and PlanID
+    function openPaymentModal(memberId, memberName, planId) {
+        document.getElementById('paymentModal').style.display = 'block';
+        document.getElementById('modalMemberID').value = memberId;
+        document.getElementById('modalPlanID').value = planId;
+        document.getElementById('memberName').innerText = memberName; // Set the member's name in the modal
+    }
+
+    // Close the modal
+    function closePaymentModal() {
+        document.getElementById('paymentModal').style.display = 'none';
+    }
 </script>
 
 </body>
