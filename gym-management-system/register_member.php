@@ -31,6 +31,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $physical_condition = implode(", ", $physical_conditions);
 
+    // Validate date of birth using DateTime
+    $dob = $_POST['date_of_birth'];
+    $dob_check = DateTime::createFromFormat('Y-m-d', $dob);
+
+    // Check if the date is valid and matches the format
+    if ($dob_check === false || $dob_check->format('Y-m-d') !== $dob) {
+        // Redirect to index.php with an error message
+        $_SESSION['error_message'] = "Error: Invalid Date of Birth.";
+        header("Location: index.php");
+        exit; // Stop further execution
+    }
+
     // Insert member into the Member table
     $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition, Height, Weight)
                    VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition', '$height', '$weight')";
@@ -106,6 +118,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-top: 10px;  
         }
     </style>
+    <script>
+        document.querySelector("form").addEventListener("submit", function(event) {
+            const dob = document.getElementById("date_of_birth").value;
+            const dobError = document.getElementById("dob_error");
+
+            // Check if the date is invalid (e.g., "0000-00-00" or empty)
+            if (!dob || dob === "0000-00-00") {
+                dobError.style.display = "block"; // Show error message
+                event.preventDefault(); // Prevent form submission
+            } else {
+                dobError.style.display = "none"; // Hide error message
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -141,6 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <label for="date_of_birth">Date of Birth:</label>
         <input type="date" name="date_of_birth" id="date_of_birth" required>
+        <span id="dob_error" style="color: red; display: none;">Please enter a valid date of birth.</span>
 
         <label for="phone">Phone Number:</label>
         <input type="tel" name="phone" id="phone" placeholder="Enter phone number" required>
