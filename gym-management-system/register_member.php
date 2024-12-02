@@ -31,17 +31,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $physical_condition = implode(", ", $physical_conditions);
 
-    // Validate date of birth using DateTime
+        // Validate date of birth using DateTime
     $dob = $_POST['date_of_birth'];
     $dob_check = DateTime::createFromFormat('Y-m-d', $dob);
 
-    // Check if the date is valid and matches the format
-    if ($dob_check === false || $dob_check->format('Y-m-d') !== $dob) {
+    // Get today's date
+    $today = new DateTime();
+
+    // Check if the date is valid, matches the format, and is not in the future
+    if ($dob_check === false || $dob_check->format('Y-m-d') !== $dob || $dob_check > $today) {
         // Redirect to index.php with an error message
-        $_SESSION['error_message'] = "Error: Invalid Date of Birth.";
+        $_SESSION['error_message'] = "Error: Invalid Date of Birth. Please enter a valid date of birth that is not in the future.";
         header("Location: index.php");
         exit; // Stop further execution
     }
+
 
     // Insert member into the Member table
     $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition, Height, Weight)
