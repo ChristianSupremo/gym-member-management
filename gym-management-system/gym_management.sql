@@ -3,9 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+<<<<<<< HEAD:gym_management.sql
 -- Generation Time: Nov 17, 2024 at 02:36 PM
+=======
+-- Generation Time: Nov 19, 2024 at 03:21 PM
+>>>>>>> origin/JohnUrgel:gym-management-system/gym_management.sql
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -70,8 +74,17 @@ CREATE TABLE `member` (
   `PhoneNo` varchar(15) DEFAULT NULL,
   `EmailID` varchar(100) DEFAULT NULL,
   `JoinDate` date DEFAULT NULL,
-  `PhysicalCondition` varchar(255) DEFAULT NULL
+  `PhysicalCondition` varchar(255) DEFAULT NULL,
+  `Height` decimal(5,2) NOT NULL,
+  `Weight` decimal(5,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `member`
+--
+
+INSERT INTO `member` (`MemberID`, `Name`, `Address`, `City`, `Province`, `Zipcode`, `Gender`, `DateOfBirth`, `PhoneNo`, `EmailID`, `JoinDate`, `PhysicalCondition`, `Height`, `Weight`) VALUES
+(1, 'Anton Urgel', 'Sto. Nino Village, Banilad', 'Cebu city', 'Cebu', '6000', 'M', '2024-10-23', '09270645185', 'tonurgel@gmail.com', NULL, 'Gout', 0.00, 0.00);
 
 -- --------------------------------------------------------
 
@@ -89,6 +102,13 @@ CREATE TABLE `membership` (
   `EndDate` date DEFAULT NULL,
   `Status` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `membership`
+--
+
+INSERT INTO `membership` (`MembershipID`, `MemberID`, `PlanID`, `StaffID`, `StartDate`, `PaymentDate`, `EndDate`, `Status`) VALUES
+(1, 1, 3, NULL, '2024-11-19', '2024-11-19', '2024-12-19', 'Inactive');
 
 -- --------------------------------------------------------
 
@@ -261,13 +281,21 @@ ALTER TABLE `audit`
 -- AUTO_INCREMENT for table `member`
 --
 ALTER TABLE `member`
+<<<<<<< HEAD:gym_management.sql
   MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+=======
+  MODIFY `MemberID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+>>>>>>> origin/JohnUrgel:gym-management-system/gym_management.sql
 
 --
 -- AUTO_INCREMENT for table `membership`
 --
 ALTER TABLE `membership`
+<<<<<<< HEAD:gym_management.sql
   MODIFY `MembershipID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+=======
+  MODIFY `MembershipID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+>>>>>>> origin/JohnUrgel:gym-management-system/gym_management.sql
 
 --
 -- AUTO_INCREMENT for table `payment`
