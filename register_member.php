@@ -4,7 +4,22 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
+
+if (isset($_SESSION['error_message'])) {
+    // Display the error message in a dialog or alert
+    echo "<script>alert('" . $_SESSION['error_message'] . "');</script>";
+
+    // Clear the error message from session after displaying it
+    unset($_SESSION['error_message']);
+}
+
 include 'db.php';  // Include the database connection file
+
+// Custom function to validate date format
+function validateDate($date, $format = 'Y-m-d') {
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
+}
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,20 +33,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $dob = $_POST['date_of_birth'];
     $phone = $_POST['phone'];
     $email = $_POST['email'];
-    $physical_condition = $_POST['physical_condition'];
-    $plan_id = $_POST['plan_id'];
+    $height = $_POST['height'];
+    $weight = $_POST['weight'];
+
+    // Validate the date of birth
+    if (!validateDate($dob)) {
+        $_SESSION['error_message'] = "Invalid date of birth format. Please provide a valid date (e.g., MM-DD-YYYY).";
+        header("register_member.php"); // Redirect to index.php (dashboard)
+        exit;
+    }
+
+    if (strtotime($dob) > time()) {
+        $_SESSION['error_message'] = "Date of birth cannot be in the future.";
+        header("register_member.php"); // Redirect to index.php (dashboard)
+        exit;
+    }
+
+
+    // Get physical conditions from checkboxes and "others"
+    $physical_conditions = isset($_POST['physical_condition']) ? $_POST['physical_condition'] : [];
+    $other_condition = isset($_POST['other_condition']) ? trim($_POST['other_condition']) : '';
+
+    // Combine conditions into a single string
+    if (!empty($other_condition)) {
+        $physical_conditions[] = $other_condition;
+    }
+    $physical_condition = implode(", ", $physical_conditions);
 
     // Insert member into the Member table
-    $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition)
-                   VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition')";
+    $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition, Height, Weight)
+                   VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition', '$height', '$weight')";
 
     if ($conn->query($sql_member) === TRUE) {
         $member_id = $conn->insert_id; // Get the ID of the newly inserted member
         
-        // Insert the membership
+        // Insert a new row into Membership without PlanID
         $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, PaymentDate, Status)
-                   VALUES ('$member_id', '$plan_id', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 30 DAY), CURDATE(), 'Active')";// Default 30 days
-        
+                   VALUES ('$member_id', NULL, NULL, NULL, NULL, 'Inactive')";
+
         if ($conn->query($sql_membership) === TRUE) {
             $_SESSION['success_message'] = "Member successfully registered!";
             header("Location: index.php"); // Redirect to the main page
@@ -44,7 +83,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -97,12 +135,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             margin-top: 10px;  
         }
     </style>
+    <script>
+    function validateForm() {
+        const dob = document.getElementById('date_of_birth').value;
+        const dobDate = new Date(dob);
+        const today = new Date();
+
+        if (isNaN(dobDate.getTime()) || dobDate > today) {
+            alert("Invalid date of birth. Please provide a valid past date.");
+            return false;
+        }
+        return true;
+    }
+
+    window.onload = function() {
+        <?php if (isset($_SESSION['error_message'])): ?>
+            alert("<?php echo $_SESSION['error_message']; ?>");
+            <?php unset($_SESSION['error_message']); ?>
+        <?php endif; ?>
+    }
+    </script>
 </head>
 <body>
 
     <h2 class="regLabel">Register New Member</h2>
 
-    <form action="register_member.php" method="POST">
+    <form action="register_member.php" method="POST" onsubmit="return validateForm();">
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" placeholder="Enter member's name" required>
 
@@ -139,32 +197,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" placeholder="Enter email" required>
 
-        <label for="physical_condition">Physical Condition:</label>
-        <input type="text" name="physical_condition" id="physical_condition" placeholder="Enter physical condition" required>
+        <label for="Height">Height(cm):</label>
+        <input type="text" name="height" id="height" placeholder="Enter height in centimeter" required>
 
-        <!-- Fetch available plans -->
-        <label for="plan_id">Select Plan:</label>
-        <select name="plan_id" id="plan_id" required>
-        <?php
-        $plan_query = "SELECT PlanID, PlanName FROM Plan";
-        $plan_result = $conn->query($plan_query);
+        <label for="Weight">Weight(kg):</label>
+        <input type="text" name="weight" id="weight" placeholder="Enter weight in kilograms" required>
 
-        // Debugging: check if query was successful
-        if (!$plan_result) {
-            echo "Error in fetching plans: " . $conn->error;  // Show any error in the query
-        } else {
-            if ($plan_result->num_rows > 0) {
-                // Debugging line to show number of plans found
-                echo "Plans found: " . $plan_result->num_rows; 
-                while ($plan_row = $plan_result->fetch_assoc()) {
-                    echo "<option value='" . htmlspecialchars($plan_row['PlanID']) . "'>" . htmlspecialchars($plan_row['PlanName']) . "</option>";
-                }
-            } else {
-                echo "<option value=''>No plans available</option>";
-            }
-        }
-        ?>
-        </select>
+        <label for="physical_condition">Physical Conditions:</label>
+        <input type="checkbox" name="physical_condition[]" value="Hypertension"> Hypertension<br>
+        <input type="checkbox" name="physical_condition[]" value="Diabetes"> Diabetes<br>
+        <input type="checkbox" name="physical_condition[]" value="Asthma"> Asthma<br>
+        <input type="checkbox" name="physical_condition[]" value="Back Pain"> Back Pain<br>
+        <input type="checkbox" name="physical_condition[]" value="Heart Problems"> Heart Problems<br>
+        <input type="checkbox" name="physical_condition[]" value="Arthritis"> Arthritis<br>
+        <label for="other_condition">Others:</label>
+        <input type="text" name="other_condition" id="other_condition" placeholder="Specify if any"><br>
 
         <input type="submit" value="Register">
     </form>
