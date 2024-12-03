@@ -1,14 +1,16 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Include any necessary files or database connections
-include 'db.php'; // Assuming you have a database connection here
+if (isset($_SESSION['error_message'])) {
+    // Display the error message in a dialog or alert
+    echo "<script>alert('" . $_SESSION['error_message'] . "');</script>";
+    unset($_SESSION['error_message']); // Clear the error message after showing it
+}
 
-// Check if there is a success message to display
-$success_message = "";
 if (isset($_SESSION['success_message'])) {
-    $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear the message immediately after fetching it
+    // Display success message in a dialog or alert
+    echo "<script>alert('" . $_SESSION['success_message'] . "');</script>";
+    unset($_SESSION['success_message']); // Clear the success message after showing it
 }
 ?>
 
@@ -128,8 +130,8 @@ if (isset($_SESSION['success_message'])) {
             </div>
 
             <div class="card" onclick="loadContent('view_plans.php')">
-                <h3>View Plans</h3>
-                <p class="ccard">View All Plans</p>
+                <h3>Manage Plans</h3>
+                <p class="ccard">View and Manage Plans</p>
             </div>
             <div class="card" onclick="loadContent('view_payments.php')">
                 <h3>View Payments</h3>
