@@ -31,28 +31,60 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $physical_condition = implode(", ", $physical_conditions);
 
+        // Validate date of birth using DateTime
+    $dob = $_POST['date_of_birth'];
+    $dob_check = DateTime::createFromFormat('Y-m-d', $dob);
+
+    // Get today's date
+    $today = new DateTime();
+
+    // Check if the date is valid, matches the format, and is not in the future
+    if ($dob_check === false || $dob_check->format('Y-m-d') !== $dob || $dob_check > $today) {
+        // Redirect to index.php with an error message
+        $_SESSION['error_message'] = "Error: Invalid Date of Birth. Please enter a valid date of birth that is not in the future.";
+        header("Location: index.php");
+        exit; // Stop further execution
+    }
+
+    // Validate height and weight
+    if (!is_numeric($height) || $height <= 0) {
+        $_SESSION['error_message'] = "Error: Please enter a valid height.";
+        header("Location: index.php");
+        exit;
+    }
+
+    if (!is_numeric($weight) || $weight <= 0 || $weight > 500) {
+        $_SESSION['error_message'] = "Error: Please enter a valid weight (positive number, up to 500 kg).";
+        header("Location: index.php");
+        exit;
+    }
+
+
+
     // Insert member into the Member table
     $sql_member = "INSERT INTO Member (Name, Address, City, Province, Zipcode, Gender, DateOfBirth, PhoneNo, EmailID, PhysicalCondition, Height, Weight)
                    VALUES ('$name', '$address', '$city', '$province', '$zipcode', '$gender', '$dob', '$phone', '$email', '$physical_condition', '$height', '$weight')";
 
-    if ($conn->query($sql_member) === TRUE) {
-        $member_id = $conn->insert_id; // Get the ID of the newly inserted member
-        
-        // Insert a new row into Membership without PlanID
-        $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, PaymentDate, Status)
-                   VALUES ('$member_id', NULL, NULL, NULL, NULL, 'Inactive')";
+        if ($conn->query($sql_member) === TRUE) {
+            $member_id = $conn->insert_id; // Get the ID of the newly inserted member
+            
+            // Insert a new row into Membership without PlanID
+            $sql_membership = "INSERT INTO Membership (MemberID, PlanID, StartDate, EndDate, PaymentDate, Status)
+                    VALUES ('$member_id', NULL, NULL, NULL, NULL, 'Inactive')";
 
-        if ($conn->query($sql_membership) === TRUE) {
-            $_SESSION['success_message'] = "Member successfully registered!";
-            header("Location: index.php"); // Redirect to the main page
-            exit;
+            if ($conn->query($sql_membership) === TRUE) {
+                $_SESSION['success_message'] = "Member successfully registered!";
+                header("Location: index.php"); // Redirect to the main page
+                exit;
+            } else {
+                echo "Error: " . $conn->error;
+            }
         } else {
             echo "Error: " . $conn->error;
         }
-    } else {
-        echo "Error: " . $conn->error;
     }
-}
+
+
 ?>
 
 <!DOCTYPE html>
@@ -105,7 +137,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             gap: 20px;  
             margin-top: 10px;  
         }
+        .error {
+            color: red;
+            font-size: 12px;
+            display: none;
+        }
     </style>
+    <script>
+        document.querySelector("form").addEventListener("submit", function(event) {
+            const dob = document.getElementById("date_of_birth").value;
+            const dobError = document.getElementById("dob_error");
+
+            const height = document.getElementById("height").value;
+            const weight = document.getElementById("weight").value;
+            const heightError = document.getElementById("height_error");
+            const weightError = document.getElementById("weight_error");
+
+            // Validate Date of Birth
+            if (!dob || dob === "0000-00-00") {
+                dobError.style.display = "block";
+                event.preventDefault();
+            } else {
+                dobError.style.display = "none";
+            }
+
+            // Validate Height (positive number)
+            if (!height || isNaN(height) || height <= 0) {
+                heightError.style.display = "block";
+                event.preventDefault();
+            } else {
+                heightError.style.display = "none";
+            }
+
+            // Validate Weight (positive number, reasonable range)
+            if (!weight || isNaN(weight) || weight <= 0 || weight > 500) {
+                weightError.style.display = "block";
+                event.preventDefault();
+            } else {
+                weightError.style.display = "none";
+            }
+        });
+    </script>
 </head>
 <body>
 
@@ -141,6 +213,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <label for="date_of_birth">Date of Birth:</label>
         <input type="date" name="date_of_birth" id="date_of_birth" required>
+        <span id="dob_error" class="error">Please enter a valid date of birth.</span>
 
         <label for="phone">Phone Number:</label>
         <input type="tel" name="phone" id="phone" placeholder="Enter phone number" required>
@@ -148,11 +221,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" placeholder="Enter email" required>
 
-        <label for="Height">Height(cm):</label>
-        <input type="text" name="height" id="height" placeholder="Enter height in centimeter" required>
+        <label for="Height">Height (cm):</label>
+        <input type="text" name="height" id="height" placeholder="Enter height in centimeters" required>
+        <span id="height_error" class="error">Please enter a valid height (positive number).</span>
 
-        <label for="Weight">Weight(kg):</label>
+        <label for="Weight">Weight (kg):</label>
         <input type="text" name="weight" id="weight" placeholder="Enter weight in kilograms" required>
+        <span id="weight_error" class="error">Please enter a valid weight (positive number, up to 500 kg).</span>
 
         <label for="physical_condition">Physical Conditions:</label>
         <input type="checkbox" name="physical_condition[]" value="Hypertension"> Hypertension<br>

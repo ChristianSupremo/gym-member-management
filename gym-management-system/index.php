@@ -1,14 +1,16 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-// Include any necessary files or database connections
-include 'db.php'; // Assuming you have a database connection here
+if (isset($_SESSION['error_message'])) {
+    // Display the error message in a dialog or alert
+    echo "<script>alert('" . $_SESSION['error_message'] . "');</script>";
+    unset($_SESSION['error_message']); // Clear the error message after showing it
+}
 
-// Check if there is a success message to display
-$success_message = "";
 if (isset($_SESSION['success_message'])) {
-    $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear the message immediately after fetching it
+    // Display success message in a dialog or alert
+    echo "<script>alert('" . $_SESSION['success_message'] . "');</script>";
+    unset($_SESSION['success_message']); // Clear the success message after showing it
 }
 ?>
 
@@ -128,8 +130,8 @@ if (isset($_SESSION['success_message'])) {
             </div>
 
             <div class="card" onclick="loadContent('view_plans.php')">
-                <h3>View Plans</h3>
-                <p class="ccard">View All Plans</p>
+                <h3>Manage Plans</h3>
+                <p class="ccard">View and Manage Plans</p>
             </div>
             <div class="card" onclick="loadContent('view_payments.php')">
                 <h3>View Payments</h3>
@@ -286,48 +288,65 @@ function attachSearchFilter() {
     }
 
     function filterPayments() {
-    const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
-    const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
-    const thisYearCheckbox = document.getElementById("thisYearCheckbox");
-    const table = document.getElementById("paymentsTable");
-    const rows = table.getElementsByTagName("tr");
+        const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
+        const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
+        const thisYearCheckbox = document.getElementById("thisYearCheckbox");
+        const table = document.getElementById("paymentsTable");
+        const rows = table.getElementsByTagName("tr");
 
-    // Enforce mutual exclusivity
-    if (thisMonthCheckbox.checked && (sixMonthsCheckbox.checked || thisYearCheckbox.checked)) {
-        sixMonthsCheckbox.checked = false;
-        thisYearCheckbox.checked = false;
-    } else if (sixMonthsCheckbox.checked && thisYearCheckbox.checked) {
-        thisYearCheckbox.checked = false;
-    }
+        // Enforce mutual exclusivity
+        if (thisMonthCheckbox.checked && (sixMonthsCheckbox.checked || thisYearCheckbox.checked)) {
+            sixMonthsCheckbox.checked = false;
+            thisYearCheckbox.checked = false;
+        } else if (sixMonthsCheckbox.checked && thisYearCheckbox.checked) {
+            thisYearCheckbox.checked = false;
+        }
 
-    const today = new Date();
-    for (let i = 1; i < rows.length; i++) {
-        const dateCell = rows[i].querySelector("td:nth-child(3)");
-        if (dateCell) {
-            const paymentDate = new Date(dateCell.textContent.trim());
-            const yearDifference = today.getFullYear() - paymentDate.getFullYear();
-            const monthDifference =
-                today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
+        const today = new Date();
+        for (let i = 1; i < rows.length; i++) {
+            const dateCell = rows[i].querySelector("td:nth-child(3)");
+            if (dateCell) {
+                const paymentDate = new Date(dateCell.textContent.trim());
+                const yearDifference = today.getFullYear() - paymentDate.getFullYear();
+                const monthDifference =
+                    today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
 
-            let showRow = false;
+                let showRow = false;
 
-            if (
-                thisMonthCheckbox.checked &&
-                today.getFullYear() === paymentDate.getFullYear() &&
-                today.getMonth() === paymentDate.getMonth()
-            ) {
-                showRow = true;
-            } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
-                showRow = true;
-            } else if (thisYearCheckbox.checked && yearDifference === 0) {
-                showRow = true;
+                if (
+                    thisMonthCheckbox.checked &&
+                    today.getFullYear() === paymentDate.getFullYear() &&
+                    today.getMonth() === paymentDate.getMonth()
+                ) {
+                    showRow = true;
+                } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
+                    showRow = true;
+                } else if (thisYearCheckbox.checked && yearDifference === 0) {
+                    showRow = true;
+                }
+
+                rows[i].style.display = showRow ? "" : "none";
             }
-
-            rows[i].style.display = showRow ? "" : "none";
         }
     }
-}
 
+    function searchPlans() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let table = document.getElementById("plansTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) { // Skip the first row (headers)
+            let cells = rows[i].getElementsByTagName("td");
+            let planName = cells[0].textContent.toLowerCase();
+            let duration = cells[2].textContent.toLowerCase();
+            
+            if (planName.includes(input) || duration.includes(input)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
 
     // Open the payment modal and populate hidden fields with MemberID and PlanID
     function openPaymentModal(memberId, memberName, planId) {
@@ -341,6 +360,33 @@ function attachSearchFilter() {
     function closePaymentModal() {
         document.getElementById('paymentModal').style.display = 'none';
     }
+
+    function ADDvalidatePlan(form) {
+        const rate = form.rate.value;
+        const duration = form.duration.value;
+
+        // Check for empty fields and zero values in the Add Plan form
+        if (rate <= 0 || duration <= 0) {
+            alert("Rate and Duration must be greater than 0.");
+            return false; // Prevent form submission
+        }
+
+        return true; // Allow form submission
+    }
+
+    function validatePlan(form) {
+        const rate = form.rate.value;
+        const duration = form.duration.value;
+
+        // Check for empty fields and zero values in the Edit Plan form
+        if (rate <= 0 || duration <= 0) {
+            alert("Rate and Duration must be greater than 0.");
+            return false; // Prevent form submission
+        }
+
+        return true; // Allow form submission
+    }
+
 </script>
 
 </body>
