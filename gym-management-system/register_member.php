@@ -94,54 +94,209 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register New Member</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 50px;
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background-color: #2F4F4F;
+        padding: 20px;
+        border-radius: 8px;
+        flex-direction: column;
+    }
+
+    h1 {
+        margin: 0;
+        border: 2px solid #333;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #4B4B4B;
+        color: #FFF;
+    }
+
+    h2 {
+        margin: 0;
+        color: #FDFD96;
+        font-size: 18px;
+    }
+
+    .dashboard {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+        max-width: 100%;
+        overflow: hidden;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard {
+            flex-direction: column;
+            align-items: center;
         }
-        .regLabel {
-            text-align: center;
-            margin-bottom: 20px;
+        .card {
+            width: 90%;
         }
-        form {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        label {
-            display: block;
-            margin-top: 10px;
-        }
-        input[type="text"], input[type="email"], input[type="date"], input[type="number"], input[type="tel"], select {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-        }
-        input[type="submit"] {
-            margin-top: 20px;
-            padding: 10px;
-            width: 100%;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-        .gender-group {
-            display: flex;  
-            align-items: center;  
-            gap: 20px;  
-            margin-top: 10px;  
-        }
-        .error {
-            color: red;
-            font-size: 12px;
-            display: none;
-        }
+    }
+
+    .card {
+        border: 4px solid #333333;
+        padding: 10px;
+        text-align: center;
+        border-radius: 8px;
+        background-color: #008080;
+        width: 200px;
+        height: 90px;
+        cursor: pointer;
+    }
+
+    .card:hover {
+        background-color: #FFF275;
+        border: 4px solid #FFF275;
+        color: #191970;
+    }
+
+    .card:hover .ccard {
+        color: #191970;
+    }
+
+    #content-area {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #36454F;
+        border: 2px solid #333333;
+        border-radius: 8px;
+    }
+
+    .ccard {
+        color: #FDFD96;
+    }
+
+    /* Form specific adjustments */
+    form {
+        width: 100%;
+        max-width: 600px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        box-sizing: border-box;
+        margin: 20px auto; /* Center the form with a margin from top */
+        text-align: center; /* Center all form content */
+    }
+
+    .regLabel {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    h3 {
+        text-align: center;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="number"],
+    input[type="tel"],
+    select {
+        width: 80%; /* Keep the input fields at 80% width */
+        padding: 8px;
+        margin-top: 5px;
+        text-align: center;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto; /* Center input fields */
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+        margin-right: 10px;
+        transform: scale(1.2);
+    }
+
+    input[type="submit"] {
+        margin-top: 20px;
+        padding: 10px;
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    .gender-group {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 10px;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        margin: 5px 10px;
+        display: inline-block;
+    }
+
+    .error {
+        color: red;
+        font-size: 12px;
+        display: none;
+    }
+
+    input[type="checkbox"] + label {
+        margin-left: 5px;
+        display: inline-block;
+    }
+
+    label[for="physical_condition"] {
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .physical-conditions {
+        display: flex;
+        flex-wrap: wrap;           /* Allow the checkboxes to wrap to the next line */
+        justify-content: center;   /* Center all items horizontally */
+        gap: 15px;                 /* Add space between checkboxes */
+        margin-top: 10px;          /* Add space above */
+        text-align: left;          /* Align the checkbox label text to the left */
+    }
+
+    .physical-conditions input[type="checkbox"] {
+        margin-right: 10px;        /* Space between checkbox and label */
+        transform: scale(1.2);     /* Increase checkbox size for better visibility */
+    }
+
+    .physical-conditions label {
+        display: flex;             /* Align checkbox and text */
+        align-items: center;       /* Vertically align checkbox and text */
+    }
+
+    #other_condition {
+        width: 80%;                /* Make the text input take up 80% of the form width */
+        padding: 8px;
+        margin-top: 10px;
+        text-align: center;        /* Center the text inside the input box */
+        box-sizing: border-box;
+        display: block;            /* Ensure it's block-level for good alignment */
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     </style>
     <script>
         document.querySelector("form").addEventListener("submit", function(event) {
@@ -184,6 +339,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h2 class="regLabel">Register New Member</h2>
 
     <form action="register_member.php" method="POST">
+
+        <h3>Member Details</h3>
+        
         <label for="name">Name:</label>
         <input type="text" name="name" id="name" placeholder="Enter member's name" required>
 
@@ -230,14 +388,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <span id="weight_error" class="error">Please enter a valid weight (positive number, up to 500 kg).</span>
 
         <label for="physical_condition">Physical Conditions:</label>
-        <input type="checkbox" name="physical_condition[]" value="Hypertension"> Hypertension<br>
-        <input type="checkbox" name="physical_condition[]" value="Diabetes"> Diabetes<br>
-        <input type="checkbox" name="physical_condition[]" value="Asthma"> Asthma<br>
-        <input type="checkbox" name="physical_condition[]" value="Back Pain"> Back Pain<br>
-        <input type="checkbox" name="physical_condition[]" value="Heart Problems"> Heart Problems<br>
-        <input type="checkbox" name="physical_condition[]" value="Arthritis"> Arthritis<br>
+        <div class="physical-conditions">
+            <label><input type="checkbox" name="physical_condition[]" value="Hypertension"> Hypertension</label>
+            <label><input type="checkbox" name="physical_condition[]" value="Diabetes"> Diabetes</label>
+            <label><input type="checkbox" name="physical_condition[]" value="Asthma"> Asthma</label>
+            <label><input type="checkbox" name="physical_condition[]" value="Back Pain"> Back Pain</label>
+            <label><input type="checkbox" name="physical_condition[]" value="Heart Problems"> Heart Problems</label>
+            <label><input type="checkbox" name="physical_condition[]" value="Arthritis"> Arthritis</label>
+        </div>
+
         <label for="other_condition">Others:</label>
-        <input type="text" name="other_condition" id="other_condition" placeholder="Specify if any"><br>
+        <input type="text" name="other_condition" id="other_condition" placeholder="Specify if any">
 
         <input type="submit" value="Register">
     </form>

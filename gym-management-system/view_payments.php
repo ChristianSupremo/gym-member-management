@@ -3,17 +3,22 @@ session_start(); // Start the session to retrieve session variables
 
 include 'db.php'; // Include the database connection file
 
-// Fetch all plans with their rates
-$plans = [];
-$plans_result = $conn->query("SELECT PlanName, Rate FROM Plan");
-if ($plans_result) {
-    while ($plan = $plans_result->fetch_assoc()) {
-        $plans[number_format($plan['Rate'], 2)] = $plan['PlanName']; // Store rates as keys
+// Fetch all payment methods
+$paymentMethods = [];
+$payment_methods_result = $conn->query("SELECT PaymentMethodID, MethodName FROM PaymentMethods");
+if ($payment_methods_result) {
+    while ($method = $payment_methods_result->fetch_assoc()) {
+        $paymentMethods[$method['PaymentMethodID']] = $method['MethodName'];
     }
 }
 
-// Fetch all payments with member names
-$sql = "SELECT Payment.PaymentID, Member.Name, Payment.PaymentDate, Payment.Amount
+// Fetch all payments with member names, chosen plans, payment methods
+$sql = "SELECT 
+            Member.Name AS MemberName, 
+            Payment.PaymentDate, 
+            Payment.Amount, 
+            Payment.ChosenPlan, 
+            Payment.PaymentMethodID
         FROM Payment
         JOIN Membership ON Payment.MembershipID = Membership.MembershipID
         JOIN Member ON Membership.MemberID = Member.MemberID";
@@ -33,61 +38,58 @@ if (!$result) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Payments</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 50px;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border: 1px solid #ccc;
-        }
-        th {
-            background-color: #2F4F4F;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #C0C0C0;
-        }
-        tr:nth-child(odd) {
-            background-color: white;
-        }
-        tr:hover {
-            background-color: #D0E8C5;
-        }
-        .no-payments {
-            text-align: center;
-            color: #888;
-        }
-        .alert {
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .alert.error {
-            background-color: #f44336;
-        }
-        form {
-            display: inline-block;
-            margin: 0;
-        }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-        .search-bar input {
-            padding: 8px;
-            font-size: 16px;
-            width: 300px;
-        }
+    <style>    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border: 1px solid #ccc;
+    }
+
+    th {
+        background-color: #2F4F4F;
+        color: white;
+    }
+
+    tr:nth-child(even) {
+        background-color: #C0C0C0;
+    }
+
+    tr:nth-child(odd) {
+        background-color: white;
+    }
+
+    tr:hover {
+        background-color: #D0E8C5;
+    }
+
+    .no-payments {
+        text-align: center;
+        color: #888;
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+    }
+
+    .search-bar input {
+        padding: 8px;
+        font-size: 16px;
+        width: 300px;
+    }
+
+    /* Checkbox labels styled to be white */
+    label {
+        color: white;  /* Makes the label text white */
+        display: block; /* Ensures labels are block-level for alignment */
+        margin: 5px 0; /* Optional: Add some spacing between checkboxes */
+    }
+
     </style>
 </head>
 <body>
@@ -96,7 +98,7 @@ if (!$result) {
 
 <!-- Search Bar -->
 <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search by Name or Date..." onkeyup="ftb()">
+    <input type="text" id="searchInput" placeholder="Search by Name..." onkeyup="filterPayments()">
 </div>
 
 <!-- Date Range Checkboxes -->
@@ -114,28 +116,28 @@ if (!$result) {
 <table id="paymentsTable">
     <thead>
         <tr>
-            <th>Payment ID</th>
             <th>Name</th>
-            <th>Payment Date</th>
-            <th>Plan Name</th> <!-- Added Plan Name Column -->
+            <th>Plan Name</th>
+            <th>Payment Method</th>
             <th>Amount</th>
+            <th>Payment Date</th>
         </tr>
     </thead>
     <tbody>
         <?php
         if ($result->num_rows > 0) {
             while ($row = $result->fetch_assoc()) {
-                // Match the plan name based on the amount
-                $planName = isset($plans[number_format($row['Amount'], 2)]) 
-                            ? $plans[number_format($row['Amount'], 2)] 
-                            : "Unknown Plan";
+                // Fetch plan name based on ChosenPlan
+                $chosenPlan = htmlspecialchars($row["ChosenPlan"]) ?: "Unknown Plan";
+                // Get payment method name
+                $paymentMethod = htmlspecialchars($paymentMethods[$row["PaymentMethodID"]] ?? "Unknown Method");
 
                 echo "<tr>
-                        <td>" . htmlspecialchars($row["PaymentID"]) . "</td>
-                        <td>" . htmlspecialchars($row["Name"]) . "</td>
-                        <td>" . htmlspecialchars($row["PaymentDate"]) . "</td>
-                        <td>" . htmlspecialchars($planName) . "</td> <!-- Display Plan Name -->
+                        <td>" . htmlspecialchars($row["MemberName"]) . "</td>
+                        <td>" . $chosenPlan . "</td>
+                        <td>" . $paymentMethod . "</td>
                         <td>₱" . number_format($row["Amount"], 2) . "</td>
+                        <td>" . htmlspecialchars($row["PaymentDate"]) . "</td>
                     </tr>";
             }
         } else {
@@ -145,9 +147,61 @@ if (!$result) {
     </tbody>
 </table>
 
+<script>
+    // Search function
+    function filterPayments() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let table = document.getElementById("paymentsTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < rows.length; i++) { // Skip the header row
+            let cells = rows[i].getElementsByTagName("td");
+            let name = cells[0]?.textContent.toLowerCase();
+            let date = cells[4]?.textContent.toLowerCase();
+
+            if (name.includes(input) || date.includes(input)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+
+        // Handle date filters
+        const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
+        const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
+        const thisYearCheckbox = document.getElementById("thisYearCheckbox");
+        const today = new Date();
+
+        for (let i = 1; i < rows.length; i++) {
+            const dateCell = rows[i].querySelector("td:nth-child(5)");
+            if (dateCell) {
+                const paymentDate = new Date(dateCell.textContent.trim());
+                const yearDifference = today.getFullYear() - paymentDate.getFullYear();
+                const monthDifference = today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
+
+                let showRow = false;
+
+                if (
+                    thisMonthCheckbox.checked &&
+                    today.getFullYear() === paymentDate.getFullYear() &&
+                    today.getMonth() === paymentDate.getMonth()
+                ) {
+                    showRow = true;
+                } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
+                    showRow = true;
+                } else if (thisYearCheckbox.checked && yearDifference === 0) {
+                    showRow = true;
+                }
+
+                rows[i].style.display = showRow ? "" : "none";
+            }
+        }
+    }
+</script>
+
 </body>
 </html>
 
 <?php
-$conn->close();
+$conn->close(); // Close the database connection
 ?>

@@ -93,12 +93,23 @@ $plan_result = $conn->query($plan_query);
         }
 
         input[type="text"], input[type="number"] {
-            width: 100%;
+            /* width: 50%; */
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-top: 5px;
             font-size: 16px;
+        }
+
+        #plan_name{
+            width: 250px;
+            margin-left: 30px;
+        }
+        #rate{
+            margin-left: 50px;
+        }
+        #duration{
+
         }
 
         input[type="submit"] {
@@ -213,13 +224,13 @@ $plan_result = $conn->query($plan_query);
         <input type="submit" name="add_plan" value="Add Plan">
     </form>
 
-    <!-- Search Bar -->
+    <!-- Search Bar Below Heading -->
+    <h3>Available Plans</h3>
     <div class="search-bar">
         <input type="text" id="searchInput" placeholder="Search by Plan Name or Duration" onkeyup="searchPlans()">
     </div>
 
     <!-- Plans Table -->
-    <h3>Available Plans</h3>
     <table id="plansTable">
         <tr>
             <th>Plan Name</th>

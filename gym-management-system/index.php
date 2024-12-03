@@ -74,7 +74,6 @@ if (isset($_SESSION['success_message'])) {
             }
         }
 
-
         .card {
             border: 4px solid #333333;
             padding: 10px;
@@ -226,39 +225,39 @@ function attachSearchFilter() {
             }
         }
     }
-    function ftb() {
-    const input = document.getElementById("searchInput");
-    const filter = input.value.toLowerCase();
-    const table = document.getElementById("paymentsTable");
-    const rows = table.getElementsByTagName("tr");
+    // function ftb() {
+    // const input = document.getElementById("searchInput");
+    // const filter = input.value.toLowerCase();
+    // const table = document.getElementById("paymentsTable");
+    // const rows = table.getElementsByTagName("tr");
 
-    // Loop through all rows in the table (skip the header row)
-    for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        const cells = row.getElementsByTagName("td");
+    // // Loop through all rows in the table (skip the header row)
+    // for (let i = 1; i < rows.length; i++) {
+    //     const row = rows[i];
+    //     const cells = row.getElementsByTagName("td");
 
-        let match = false;
+    //     let match = false;
 
-        // Check the second column (Name) and third column (Payment Date)
-        const nameCell = cells[1]; // Index 1 corresponds to the Name column
-        const dateCell = cells[2]; // Index 2 corresponds to the Payment Date column
+    //     // Check the second column (Name) and third column (Payment Date)
+    //     const nameCell = cells[1]; // Index 1 corresponds to the Name column
+    //     const dateCell = cells[2]; // Index 2 corresponds to the Payment Date column
 
-        // Check if either the name or payment date matches the search input
-        if (
-            (nameCell && nameCell.textContent.toLowerCase().includes(filter)) ||
-            (dateCell && dateCell.textContent.toLowerCase().includes(filter))
-        ) {
-            match = true;
-        }
+    //     // Check if either the name or payment date matches the search input
+    //     if (
+    //         (nameCell && nameCell.textContent.toLowerCase().includes(filter)) ||
+    //         (dateCell && dateCell.textContent.toLowerCase().includes(filter))
+    //     ) {
+    //         match = true;
+    //     }
 
-        // Show or hide the row based on the search result
-            if (match) {
-                row.style.display = "";
-            } else {
-                row.style.display = "none";
-            }
-        }
-    }
+    //     // Show or hide the row based on the search result
+    //         if (match) {
+    //             row.style.display = "";
+    //         } else {
+    //             row.style.display = "none";
+    //         }
+    //     }
+    // }
     function filterByStatus() {
     const activeCheckbox = document.getElementById("activeCheckbox");
     const inactiveCheckbox = document.getElementById("inactiveCheckbox");
@@ -288,48 +287,66 @@ function attachSearchFilter() {
     }
 
     function filterPayments() {
-        const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
-        const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
-        const thisYearCheckbox = document.getElementById("thisYearCheckbox");
-        const table = document.getElementById("paymentsTable");
-        const rows = table.getElementsByTagName("tr");
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let table = document.getElementById("paymentsTable");
+        let rows = table.getElementsByTagName("tr");
 
-        // Enforce mutual exclusivity
-        if (thisMonthCheckbox.checked && (sixMonthsCheckbox.checked || thisYearCheckbox.checked)) {
-            sixMonthsCheckbox.checked = false;
-            thisYearCheckbox.checked = false;
-        } else if (sixMonthsCheckbox.checked && thisYearCheckbox.checked) {
-            thisYearCheckbox.checked = false;
-        }
+        let anyFilterChecked = document.getElementById("thisMonthCheckbox").checked ||
+                               document.getElementById("sixMonthsCheckbox").checked ||
+                               document.getElementById("thisYearCheckbox").checked;
 
-        const today = new Date();
-        for (let i = 1; i < rows.length; i++) {
-            const dateCell = rows[i].querySelector("td:nth-child(3)");
-            if (dateCell) {
-                const paymentDate = new Date(dateCell.textContent.trim());
-                const yearDifference = today.getFullYear() - paymentDate.getFullYear();
-                const monthDifference =
-                    today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
+        // Loop through all rows and filter based on search and checkbox status
+        for (let i = 1; i < rows.length; i++) { // Skip the header row
+            let cells = rows[i].getElementsByTagName("td");
+            let name = cells[0]?.textContent.toLowerCase();
+            let date = cells[4]?.textContent.toLowerCase();
+            let rowContainsSearchTerm = name.includes(input) || date.includes(input);
 
-                let showRow = false;
+            // If no checkboxes are checked, show all rows that match the search
+            if (!anyFilterChecked) {
+                rows[i].style.display = rowContainsSearchTerm ? "" : "none";
+            } else {
+                // Handle date filters
+                const thisMonthCheckbox = document.getElementById("thisMonthCheckbox");
+                const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox");
+                const thisYearCheckbox = document.getElementById("thisYearCheckbox");
+                const today = new Date();
+                const dateCell = rows[i].querySelector("td:nth-child(5)");
+                
+                if (dateCell) {
+                    const paymentDate = new Date(dateCell.textContent.trim());
+                    const yearDifference = today.getFullYear() - paymentDate.getFullYear();
+                    const monthDifference = today.getMonth() - paymentDate.getMonth() + yearDifference * 12;
 
-                if (
-                    thisMonthCheckbox.checked &&
-                    today.getFullYear() === paymentDate.getFullYear() &&
-                    today.getMonth() === paymentDate.getMonth()
-                ) {
-                    showRow = true;
-                } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
-                    showRow = true;
-                } else if (thisYearCheckbox.checked && yearDifference === 0) {
-                    showRow = true;
+                    let showRow = false;
+
+                    if (
+                        thisMonthCheckbox.checked &&
+                        today.getFullYear() === paymentDate.getFullYear() &&
+                        today.getMonth() === paymentDate.getMonth()
+                    ) {
+                        showRow = true;
+                    } else if (sixMonthsCheckbox.checked && monthDifference <= 6) {
+                        showRow = true;
+                    } else if (thisYearCheckbox.checked && yearDifference === 0) {
+                        showRow = true;
+                    }
+
+                    rows[i].style.display = showRow && rowContainsSearchTerm ? "" : "none";
                 }
-
-                rows[i].style.display = showRow ? "" : "none";
             }
         }
     }
 
+    function VMfilterTable() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#membersTable tbody tr');
+
+        rows.forEach(row => {
+            const name = row.cells[1].textContent.toLowerCase();
+            row.style.display = name.includes(input) ? '' : 'none';
+        });
+    }
     function searchPlans() {
         let input = document.getElementById("searchInput").value.toLowerCase();
         let table = document.getElementById("plansTable");

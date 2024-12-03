@@ -13,13 +13,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Fetch the plan details to get the rate and duration
-    $plan_check = $conn->query("SELECT PlanID, Rate, Duration FROM Plan WHERE PlanID = '$plan_id'");
+    // Fetch the plan details to get the rate, duration, and PlanName
+    $plan_check = $conn->query("SELECT PlanID, PlanName, Rate, Duration FROM Plan WHERE PlanID = '$plan_id'");
     if ($plan_check->num_rows === 0) {
         echo "<div class='alert error'>Error: Invalid Plan ID.</div>";
         exit;
     }
     $plan_data = $plan_check->fetch_assoc();
+    $plan_name = $plan_data['PlanName']; // Get the PlanName
     $plan_rate = $plan_data['Rate'];
     $plan_duration = $plan_data['Duration']; // Assuming Duration is in days
 
@@ -48,10 +49,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $end_date = date('Y-m-d', strtotime($payment_date . " + $plan_duration days"));
     }
 
-    // Insert the payment record into the Payment table
+    // Insert the payment record into the Payment table including the PlanName
     $status = "Completed"; // Default to Completed if all checks pass
-    $payment_sql = "INSERT INTO Payment (MembershipID, PaymentMethodID, Amount, PaymentDate, Status)
-                    VALUES ('$member_id', '$payment_method_id', '$plan_rate', '$payment_date', '$status')";
+    $payment_sql = "INSERT INTO Payment (MembershipID, PaymentMethodID, Amount, PaymentDate, ChosenPlan, Status)
+                    VALUES ('$member_id', '$payment_method_id', '$plan_rate', '$payment_date', '$plan_name', '$status')";
 
     if ($conn->query($payment_sql) === TRUE) {
         // Update the Membership table with the new EndDate and PaymentDate (latest payment date)

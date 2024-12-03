@@ -71,7 +71,7 @@ if (!$result) {
 
 <!-- Search Bar -->
 <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search by Name..." onkeyup="filterTable()">
+    <input type="text" id="searchInput" placeholder="Search by Name..." onkeyup="VMfilterTable()">
 </div>
 
 <!-- Members Table -->
@@ -83,6 +83,7 @@ if (!$result) {
             <th>Height (cm)</th>
             <th>Weight (kg)</th>
             <th>Physical Condition</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -91,22 +92,31 @@ if (!$result) {
                 <tr>
                     <td><?php echo htmlspecialchars($row['MemberID']); ?></td>
                     <td><?php echo htmlspecialchars($row['Name']); ?></td>
-                    <td><?php echo $row['Height'] !== null ? htmlspecialchars($row['Height']) : "Not Provided"; ?></td>
-                    <td><?php echo $row['Weight'] !== null ? htmlspecialchars($row['Weight']) : "Not Provided"; ?></td>
-                    <td><?php echo !empty($row['PhysicalCondition']) ? htmlspecialchars($row['PhysicalCondition']) : "None"; ?></td>
+                    <td><?php echo htmlspecialchars($row['Height']); ?></td>
+                    <td><?php echo htmlspecialchars($row['Weight']); ?></td>
+                    <td><?php echo htmlspecialchars($row['PhysicalCondition']); ?></td>
+                    <td>
+                        <form method="GET" action="edit_member.php" style="display:inline;">
+                            <input type="hidden" name="MemberID" value="<?php echo $row['MemberID']; ?>">
+                            <button type="submit" style="background-color: #007BFF; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                                Edit
+                            </button>
+                        </form>
+                    </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
             <tr>
-                <td colspan="5">No members found.</td>
+                <td colspan="6">No members found.</td>
             </tr>
         <?php endif; ?>
     </tbody>
 </table>
 
+
 <script>
 // Filter table by name
-function filterTable() {
+function VMfilterTable() {
     const input = document.getElementById('searchInput').value.toLowerCase();
     const rows = document.querySelectorAll('#membersTable tbody tr');
 
