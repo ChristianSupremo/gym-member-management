@@ -404,6 +404,84 @@ function attachSearchFilter() {
         return true; // Allow form submission
     }
 
+    function generateReport() {
+        const table = document.getElementById("paymentsTable");
+        const rows = table.getElementsByTagName("tr");
+        const plans = {};
+        let totalSales = 0;
+        let earliestDate = null;
+        let latestDate = null;
+
+        for (let i = 1; i < rows.length; i++) { // Skip header row
+            if (rows[i].style.display !== "none") { // Only process visible rows
+                const cells = rows[i].getElementsByTagName("td");
+                const planName = cells[1].textContent.trim();
+                const amount = parseFloat(cells[3].textContent.replace("₱", "").replace(",", ""));
+                const paymentDate = new Date(cells[4].textContent.trim());
+
+                // Add to plan-wise total
+                plans[planName] = (plans[planName] || 0) + amount;
+                totalSales += amount;
+
+                // Track earliest and latest dates
+                if (!earliestDate || paymentDate < earliestDate) {
+                    earliestDate = paymentDate;
+                }
+                if (!latestDate || paymentDate > latestDate) {
+                    latestDate = paymentDate;
+                }
+            }
+        }
+
+        // Determine the filter applied
+        const thisMonthCheckbox = document.getElementById("thisMonthCheckbox").checked;
+        const sixMonthsCheckbox = document.getElementById("sixMonthsCheckbox").checked;
+        const thisYearCheckbox = document.getElementById("thisYearCheckbox").checked;
+
+        let filterInfo = "Report includes payments from ";
+        if (thisMonthCheckbox) {
+            filterInfo += "this month.";
+        } else if (sixMonthsCheckbox) {
+            filterInfo += "the past six months.";
+        } else if (thisYearCheckbox) {
+            filterInfo += "this year.";
+        } else {
+            filterInfo += "the earliest to the latest payment record.";
+        }
+
+        // Format dates
+        const earliestDateFormatted = earliestDate ? earliestDate.toLocaleDateString() : "N/A";
+        const latestDateFormatted = latestDate ? latestDate.toLocaleDateString() : "N/A";
+
+        // Build the report content
+        let reportHTML = `<p><strong>${filterInfo}</strong></p>`;
+        reportHTML += `<p><strong>Payment Record Between:</strong> ${earliestDateFormatted} - ${latestDateFormatted}</p>`;
+        reportHTML += "<table style='width: 100%; border-collapse: collapse;'>";
+        reportHTML += "<tr><th style='text-align: left;'>Plan</th><th style='text-align: right;'>Amount (₱)</th></tr>";
+
+        for (const [plan, total] of Object.entries(plans)) {
+            reportHTML += `<tr>
+                <td style="font-weight: bold;">${plan}</td>
+                <td style="text-align: right;">₱${total.toLocaleString()}</td>
+            </tr>`;
+        }
+
+        reportHTML += `<tr>
+            <td style="font-weight: bold;">Total Sales</td>
+            <td style="text-align: right; font-weight: bold;">₱${totalSales.toLocaleString()}</td>
+        </tr>`;
+        reportHTML += "</table>";
+
+        // Show the modal with the report
+        document.getElementById("reportContent").innerHTML = reportHTML;
+        document.getElementById("reportModal").style.display = "block";
+        document.getElementById("modalBackground").style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById("reportModal").style.display = "none";
+        document.getElementById("modalBackground").style.display = "none";
+    }
 </script>
 
 </body>

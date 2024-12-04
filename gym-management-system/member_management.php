@@ -22,6 +22,10 @@ $result = $conn->query($sql);
 // Fetch all available plans with their rates
 $plans_result = $conn->query("SELECT PlanID, PlanName, Rate FROM Plan");
 
+// Count active and inactive members
+$activeCount = $conn->query("SELECT COUNT(*) AS count FROM Membership WHERE Status = 'Active'")->fetch_assoc()['count'];
+$inactiveCount = $conn->query("SELECT COUNT(*) AS count FROM Membership WHERE Status = 'Inactive'")->fetch_assoc()['count'];
+
 // Check for SQL errors
 if (!$result || !$plans_result) {
     echo "<p>Error fetching members or plans: " . htmlspecialchars($conn->error) . "</p>";
@@ -190,6 +194,12 @@ if (!$result || !$plans_result) {
                 width: 20%;
                 margin: 0;
         }
+        .active-count {
+        color: green;
+        }
+        .inactive-count {
+            color: #c92222;
+        }
     </style>
 </head>
 <body>
@@ -199,6 +209,12 @@ if (!$result || !$plans_result) {
 <label for="searchInput">Search Members:</label>
 <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search by Name...">
 
+<!-- Member Counts -->
+<div style="margin-top: 10px;">
+    <span class="active-count"><strong>Active Members:</strong> <?php echo $activeCount; ?></span>
+    <span class="inactive-count" style="margin-left: 20px;"><strong>Inactive Members:</strong> <?php echo $inactiveCount; ?></span>
+</div>
+
 <!-- Filter Checkboxes -->
 <label>
     <input type="checkbox" id="activeCheckbox" onchange="filterByStatus()"> Show Active Members
@@ -206,6 +222,7 @@ if (!$result || !$plans_result) {
 <label>
     <input type="checkbox" id="inactiveCheckbox" onchange="filterByStatus()"> Show Inactive Members
 </label>
+
 
 <!-- Members Table -->
 <table id="membersTable">

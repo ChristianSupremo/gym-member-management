@@ -8,9 +8,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['add_plan'])) {
         $plan_name = $_POST['plan_name'];
         $rate = $_POST['rate'];
+        $duration = $_POST['duration']; // Capture duration from form input
 
         // Insert new plan
-        $sql = "INSERT INTO Plan (PlanName, Rate) VALUES ('$plan_name', '$rate')";
+        $sql = "INSERT INTO Plan (PlanName, Rate, Duration) VALUES ('$plan_name', '$rate', '$duration')";
         if ($conn->query($sql) === TRUE) {
             $_SESSION['success_message'] = "Plan added successfully!";
             header("Location: index.php"); // Redirect to the main page
@@ -121,6 +122,7 @@ $plan_result = $conn->query($plan_query);
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
+            margin-left: 115px;
             transition: background-color 0.3s;
         }
 

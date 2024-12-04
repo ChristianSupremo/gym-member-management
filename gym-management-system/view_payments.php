@@ -89,7 +89,22 @@ if (!$result) {
         display: block; /* Ensures labels are block-level for alignment */
         margin: 5px 0; /* Optional: Add some spacing between checkboxes */
     }
+    #generateReportBtn {
+        display: block;
+        margin: 20px 0;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
 
+    }
+
+    #generateReportBtn:hover {
+        background-color: #45a049;
+    }
     </style>
 </head>
 <body>
@@ -111,6 +126,19 @@ if (!$result) {
 <label>
     <input type="checkbox" id="thisYearCheckbox" onchange="filterPayments()"> Payments This Year
 </label>
+
+<!-- Generate Report Button -->
+<button id="generateReportBtn" onclick="generateReport()">Generate Report</button>
+
+<!-- Report Modal -->
+<div id="reportModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 1000;">
+    <h3>Total Sales Report</h3>
+    <div id="reportContent"></div>
+    <button onclick="closeModal()">Close</button>
+</div>
+
+<!-- Modal Background -->
+<div id="modalBackground" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999;" onclick="closeModal()"></div>
 
 <!-- Payments Table -->
 <table id="paymentsTable">
